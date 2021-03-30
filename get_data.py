@@ -24,7 +24,7 @@ import datetime as dt
 # ***** End *****
 
 # Folder where data should be stored
-data_dir = 'C:/Users/jonas/OneDrive - Danmarks Tekniske Universitet/01666 - Fagprojekt Matematik og Teknologi/Kode/data/'
+data_dir = os.getcwd() + '\\data\\'
 
 # Get zipped data folder
 url = 'https://files.ssi.dk/covid19/overvagning/data/data-epidemiologiske-rapport-04032021-30bv'    # Zip download-link
