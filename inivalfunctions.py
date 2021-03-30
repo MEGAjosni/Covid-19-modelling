@@ -22,15 +22,19 @@ def derivative(
     return dX
 
 def derivativeV(
+        V_0: int, #Number of accumulated infected at time t_0
         V: int,  # Number to compute derivative of
         mp: list  # Model parameters [beta, gamma, N]
             ):
     beta, gamma, N = mp
     beta = beta/N
     v = gamma/beta
-    dV = beta *(N-V)*(v*math.log(N-V)+V-v*math.log(N-1))
+    I = V + v*math.log(N-V)-V_0-v*math.log(N-V_0);
+    S = N-V
+    dV = beta *S*I
     return dV
-    
+
+def RK4V()
 
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k
