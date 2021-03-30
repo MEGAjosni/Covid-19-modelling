@@ -1,3 +1,5 @@
+import math
+
 def derivative(
         X: list,  # Vector to compute derivative of
         mp: list  # Model parameters [beta, gamma, N]
@@ -19,6 +21,16 @@ def derivative(
 
     return dX
 
+def derivativeV(
+        V: int,  # Number to compute derivative of
+        mp: list  # Model parameters [beta, gamma, N]
+            ):
+    beta, gamma, N = mp
+    beta = beta/N
+    v = gamma/beta
+    dV = beta *(N-V)*(v*math.log(N-V)+V-v*math.log(N-1))
+    return dV
+    
 
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k
