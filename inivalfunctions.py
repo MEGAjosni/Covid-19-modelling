@@ -19,6 +19,12 @@ def derivative(
 
     return dX
 
+def derivativeV(
+        V: int,  # Number to compute derivative of
+        mp: list  # Model parameters [beta, gamma, N]
+            ):
+    beta, gamma, N = mp
+    
 
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k
