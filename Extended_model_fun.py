@@ -4,7 +4,6 @@ Created on Thu Apr 15 13:31:45 2021
 
 @author: alboa
 """
-import math
 
 def derivative_expanded(X, mp):
     # *** Description ***
@@ -28,10 +27,7 @@ def derivative_expanded(X, mp):
         # gamma1 : Rate of recovery for infected
         # gamma2 : Rate of recovery for ICU
         # gamma3 : Rate of recovery for respirator
-        # t1 : Vaccination rate in group at risk
-        # t2 : Vaccination rate in group not at risk
-        # t3 : Vaccination rate of infected group
-        # t4 : Vaccination rate of recovered group
+        # t : Vaccination rate
         # theta1 : Death rate at ICU
         # theta2 : Death rate in respirator
         # phi1 : Rate of ICU from infected
@@ -42,17 +38,17 @@ def derivative_expanded(X, mp):
     # dX : derivative of state vector X. 
  
     # Extract data
-    beta1, beta2, gamma, t1, t2, t3, t4, theta1, theta2, phi1, phi2, N = mp
+    beta1, beta2, gamma1, gamma2, gamma3, t, theta1, theta2, phi1, phi2, N = mp
     S1, S2, I1, I2, I3, R1, R2, R3 = X
 
     dX = [
-        -(beta1 * (I1 / N) + t1)*S1, #dS1/dt
-        -(beta2 * (I1 / N) + t2)*S2, #dS2/dt
-        beta1 *(I1 / N) * S1 + beta2 * (I1 / N) * S2 - (gamma + t3 + phi1) * I1, #dI1/dt
-        phi1 * I1 - (gamma + theta1 + phi2) * I2, #dI2/dt 
-        phi2 * I2 - (gamma + theta2)* I3, #dI3/dt
-        gamma * (I1 + I2 + I3) - t4 * R1, #dR1/dt
-        t1 * S1 + t2 * S2 + t3 * I1 + t4 * R1, #dR2/dt
+        -(beta1 * (I1 / N) + t*(1/(S1 + S2 + I1 + R2))) * S1 , #dS1/dt
+        -(beta2 * (I1 / N) + t*(1/(S1 + S2 + I1 + R2))) * S2 , #dS2/dt
+        beta1 *(I1 / N) * S1 + beta2 * (I1 / N) * S2 - (gamma1 + phi1) * I1 - t*(1/(S1 + S2 + I1 + R2))*I1, #dI1/dt
+        phi1 * I1 - (gamma2 + theta1 + phi2) * I2, #dI2/dt 
+        phi2 * I2 - (gamma3 + theta2)* I3, #dI3/dt
+        gamma1 * I1 + gamma2 * I2 + gamma3 * I3 - t*(1/(S1 + S2 + I1 + R2))*R2, #dR1/dt
+        t, #dR2/dt
         theta1 * I1 + theta2 * I2, #dR3/dt
         
     ]
