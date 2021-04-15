@@ -4,6 +4,7 @@ Created on Thu Apr 15 13:31:45 2021
 
 @author: alboa
 """
+import math
 
 def derivative_expanded(X, mp):
     # *** Description ***
