@@ -57,9 +57,9 @@ def simulateSV(
     SV = [X_0]
     t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
     for i in range(int(simtime / stepsize)):
-        SIR.append(method(SIR[i], mp, stepsize))
+        SV.append(method(SV[i], mp, stepsize))
 
-    return t, SIR
+    return t, SV
     
     
 

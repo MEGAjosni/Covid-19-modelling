@@ -11,7 +11,7 @@ import pandas as pd
 s = pd.to_datetime('2020-12-01')
 b = 8
 
-print(gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag']['Kumuleret antal f�rdigvacc.'])
+print(gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag']['Kumuleret antal færdigvacc.'])
 
 data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=21)]
 
