@@ -1,5 +1,6 @@
 import math
 
+
 def derivative(
         X: list,  # Vector to compute derivative of
         mp: list  # Model parameters [beta, gamma, N]
@@ -21,6 +22,7 @@ def derivative(
 
     return dX
 
+
 def derivativeV(
         V_0: int, #Number of accumulated infected at time t_0
         V: int,  # Number to compute derivative of
@@ -29,10 +31,11 @@ def derivativeV(
     beta, gamma, N = mp
     beta = beta/N
     v = gamma/beta
-    I = V + v*math.log(N-V)-V_0-v*math.log(N-V_0);
+    I = V + v*math.log(N-V)-V_0-v*math.log(N-V_0)
     S = N-V
-    dV = beta *S*I
+    dV = beta * S * I
     return dV
+
 
 def RK4V(
         V_0: int, #Number of accumulated infected at time t_0
@@ -47,6 +50,7 @@ def RK4V(
     V_kp1 = V + stepsize / 6 * (K_1 + 2 * (K_2 + K_3) + K_4)
     return V_kp1
 
+
 def simulateSV(
         X_0: list,  # Initial values of SV [S_0,V_0]
         mp: list,  # Model parameters [beta, gamma, N]
@@ -60,8 +64,7 @@ def simulateSV(
         SV.append(method(SV[i], mp, stepsize))
 
     return t, SV
-    
-    
+
 
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k

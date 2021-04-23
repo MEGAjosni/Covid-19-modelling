@@ -5,7 +5,8 @@ Created on Thu Apr 15 15:22:09 2021
 @author: Marcu
 """
 import matplotlib.pyplot as plt
-import Extended_model_fun as emf
+import expanded_ivp_funcs as e_ivp
+
 simdays = 100
     # X : State vector
         # S1 : susceptible at risk
@@ -49,7 +50,7 @@ mp = [0.15,
       0.3,
       (6*10**6)]
 
-t, State_vec = emf.simulateSIR(
+t, State_vec = e_ivp.simulateSIR(
     X_0=X_0,
     mp=mp,
     simtime=simdays,

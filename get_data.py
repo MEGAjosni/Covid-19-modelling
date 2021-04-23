@@ -28,9 +28,8 @@ data_dir = os.getcwd() + '\\data\\infection\\'
 if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
-
 # Get zipped data folder
-url = 'https://files.ssi.dk/covid19/overvagning/data/data-epidemiologiske-rapport-04032021-30bv'    # Zip download-link
+url = 'https://files.ssi.dk/covid19/overvagning/data/data-epidemiologiske-rapport-04032021-30bv'  # Zip download-link
 r = requests.get(url, allow_redirects=True)
 open(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip', 'wb').write(r.content)
 
@@ -40,7 +39,7 @@ with zipfile.ZipFile(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip'
 
 os.remove(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip')
 
-infect_dict : dict = {}
+infect_dict: dict = {}
 
 for f in os.listdir(data_dir):
     if f.endswith('.csv'):
@@ -67,7 +66,7 @@ for f in os.listdir(data_dir):
             if format1 or format2:
                 j = len(x[date_name]) - 1
 
-                # Remove totals from buttom
+                # Remove totals from bottom
                 while True:
                     if len(str(x[date_name][j])) == 10:
 
@@ -77,7 +76,7 @@ for f in os.listdir(data_dir):
                         if format1 or format2:
                             break
                     else:
-                            x = x.drop(index=[j])
+                        x = x.drop(index=[j])
                     j += -1
 
                 x[date_name] = pd.to_datetime(x[date_name], dayfirst=True)
@@ -96,7 +95,7 @@ if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
 # Get zipped data folder
-url = 'https://files.ssi.dk/covid19/vaccinationsdata/zipfil/covid19-vaccinationsdata-29032021-lb1f'    # Zip download-link
+url = 'https://files.ssi.dk/covid19/vaccinationsdata/zipfil/covid19-vaccinationsdata-29032021-lb1f'  # Zip download-link
 r = requests.get(url, allow_redirects=True)
 open(data_dir + 'covid19-vaccinationsdata-29032021-lb1f.zip', 'wb').write(r.content)
 
@@ -110,7 +109,7 @@ os.remove(data_dir + 'covid19-vaccinationsdata-29032021-lb1f.zip')
 for filename in os.listdir(data_dir + 'Vaccine_DB\\'):
     shutil.move(os.path.join(data_dir + 'Vaccine_DB\\', filename), os.path.join(data_dir, filename))
 
-vaccine_dict : dict = {}
+vaccine_dict: dict = {}
 
 for f in os.listdir(data_dir):
     if f.endswith('.csv'):
@@ -137,7 +136,7 @@ for f in os.listdir(data_dir):
             if format1 or format2:
                 j = len(x[date_name]) - 1
 
-                # Remove totals from buttom
+                # Remove totals from bottom
                 while True:
                     if len(str(x[date_name][j])) == 10:
 
@@ -147,7 +146,7 @@ for f in os.listdir(data_dir):
                         if format1 or format2:
                             break
                     else:
-                            x = x.drop(index=[j])
+                        x = x.drop(index=[j])
                     j += -1
 
                 x[date_name] = pd.to_datetime(x[date_name], dayfirst=True)
