@@ -13,6 +13,7 @@ from get_data import *
 import matplotlib.pyplot as plt
 import os
 
+
 # ***** Description *****
 #
 # Computes an estimate of daily activated vaccines, and compares with actual data
@@ -27,16 +28,16 @@ os.chdir(os.getcwd())
 location = 'data/Vaccine prognoser (jan-juli).xlsx'
 df = pd.read_excel(location, header=1)
 
-# Format relevant columns to np.arrays 
+# Format relevant columns to np.arrays
 daily_phizer = np.array([df[df.columns[8]]]).transpose()
 daily_moderna = np.array([df[df.columns[9]]]).transpose()
 daily_astra = np.array([df[df.columns[10]]]).transpose()
 daily_johnson = np.array([df[df.columns[11]]]).transpose()
 daily_andre = np.array([df[df.columns[12]]]).transpose()
 
-# Adds offset to the effect of vaccine, corresponding tothe number of weeks from delivery to fully vaccinated. 
-# value for 'others' category is not known, so its set to 4. 
-offsets = [3, 4, int((4 + 9) / 2), 1, 4]  # value for others category is not determined, set to 4.
+# Adds offset to the effect of vaccine, corresponding tothe number of weeks from delivery to fully vaccinated plus one week for full effect of vaccine.
+# value for 'others' category is not known, so its set to 5.
+offsets = [5+1,5+1,int((4+9)/2)+1,1, 5+1]#value for others category is not determined, set to 5.
 
 # Adds zeros corresponding to the offset, so the effect of each vaccine is consistent with
 # vaccination time (first data point is still 4th of january )
@@ -57,9 +58,15 @@ andre_active = np.append(andre_active, np.zeros(max_points - len(andre_active)))
 # total active vaccines (with individual offsets)
 Total_active = phizer_active + moderna_active + astra_active + johnson_active + andre_active
 
+# save Total_active to file for use in model.
+np.savetxt('vac_data_kalender_14_04_2021.csv',Total_active,delimiter = ',')
+
+
+
 # import vaccination data from ssi using get_data.py
 vac_df = vaccine_dict['FaerdigVacc_daekning_DK_prdag']
 faerdig_vac_daglig = np.array([vac_df[vac_df.columns[1]]]).transpose()
+# first observation is 15th of january
 
 # (Optional) remove zeros for clearer plot.
 remove = True
@@ -89,7 +96,7 @@ plt.ylabel("Active vaccinations")
 plt.tight_layout()
 plt.show()
 
-# plots from 4th of january to last known observation of march 
+# plots from 4th of january to last known observation of march
 
 vac_data_points = len(faerdig_vac_daglig)
 t_vac_data = np.linspace(10, vac_data_points + 9, vac_data_points)
