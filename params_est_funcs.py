@@ -1,8 +1,9 @@
-import inivalfunctions as ivp
+import basic_ivp_funcs as b_ivp
+
 
 def MeanSquaredError(
-        data: list, # Data
-        data_est: list # Estimate of data
+        data: list,  # Data
+        data_est: list  # Estimate of data
 ):
     # *** Description ***
 
@@ -11,17 +12,17 @@ def MeanSquaredError(
     if n == len(data_est):
         mse = sum([(data[i] - data_est[i]) ** 2 for i in range(n)]) / n
     else:
-        print("Error in function MeanSquaredError: List don't have the same length")
-        quit()
+        raise ValueError("Arrays must have the same size")
 
     return mse
 
+
 def estimate(
-        X_0: list, # Initial values of SIR [S_0, I_0, R_0]
-        data: list, # Data to fit model to
-        n_points: int=10, # Number parameter values to test in intervals during each iteration
-        layers: int=3, # Accuracy, number of iterations
-        method=MeanSquaredError # Method to assess fit
+        X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
+        data: list,  # Data to fit model to
+        n_points: int = 10,  # Number parameter values to test in intervals during each iteration
+        layers: int = 3,  # Accuracy, number of iterations
+        method=MeanSquaredError  # Method to assess fit
 ):
     # *** Description ***
     # Computes the values of beta and gamma that gives the best modelfit on data using Mean Squared Error.
@@ -40,6 +41,8 @@ def estimate(
     gamma = [i / n_points for i in range(n_points + 1)]
 
     # Iterate layers times
+    errs = []
+    beta_opt, gamma_opt = 0, 0
     for k in range(layers):
         min_err = -1
         bg_opt_index = [0, 0]
@@ -48,7 +51,7 @@ def estimate(
             gammaerrs = []
             for j in gamma:
                 mp = [i, j, N]
-                t, SIR = ivp.simulateSIR(X_0, mp, simdays, stepsize, ivp.RK4)
+                t, SIR = b_ivp.simulateSIR(X_0, mp, simdays, stepsize, b_ivp.RK4)
                 data_est = [SIR[int(i / stepsize)][1] for i in range(simdays)]
                 err = method(data, data_est)
                 if err < min_err or min_err == -1:

@@ -1,5 +1,5 @@
-import inivalfunctions as ivp
-import parestfunctions as pest
+import basic_ivp_funcs as b_ivp
+import params_est_funcs as pest
 import get_data as gd
 import matplotlib.pyplot as plt
 import time
@@ -11,7 +11,6 @@ import pandas as pd
 s = pd.to_datetime('2020-12-01')
 b = 8
 
-print(gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag']['Kumuleret antal færdigvacc.'])
 
 data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=21)]
 
@@ -44,11 +43,11 @@ simdays = 100
 X_0 = [N - I_0 - R_0, I_0, R_0]
 mp = [beta_opt, gamma_opt, N]
 
-t, SIR = ivp.simulateSIR(
+t, SIR = b_ivp.simulateSIR(
     X_0=X_0,
     mp=mp,
     simtime=simdays,
-    method=ivp.RK4
+    method=b_ivp.RK4
 )
 
 print("Simulation completed in", c2 - c1, "seconds.")
