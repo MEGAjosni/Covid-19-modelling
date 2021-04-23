@@ -52,16 +52,16 @@ def RK4V(
 
 
 def simulateSV(
-        X_0: list,  # Initial values of SV [S_0,V_0]
+        V_0: int,  # Initial values of V_0
         mp: list,  # Model parameters [beta, gamma, N]
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
         method=RK4V  # Numerical method to be used [function]
             ):
-    SV = [X_0]
+    SV = [V_0]
     t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
     for i in range(int(simtime / stepsize)):
-        SV.append(method(SV[i], mp, stepsize))
+        SV.append(method(V_0, SV[i], mp, stepsize))
 
     return t, SV
 
