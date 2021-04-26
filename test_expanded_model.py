@@ -9,7 +9,7 @@ import expanded_ivp_funcs as e_ivp
 import numpy as np
 
 # Import added vaccine data
-Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv')
+Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv') # 1st observation is january 4th
 
 simdays = 100
 # X : State vector
@@ -57,10 +57,36 @@ t, State_vec = e_ivp.simulateSIR(
     method=e_ivp.RK4
 )
 
-plt.plot(t, State_vec)
+# format output from e_ivp.simulateSIR to be stackplotted (might be unnessecary :D)
+S = [] 
+I1 = []
+I2 = []
+I3 = []
+R1 = []
+R2 = []
+R3 = []
+for i in range(0,len(t)):
+    temp = State_vec[i]
+    S.append(temp[0])
+    I1.append(temp[1])
+    I2.append(temp[2])
+    I3.append(temp[3])
+    R1.append(temp[4])
+    R2.append(temp[5])
+    R3.append(temp[6])
+
+plt.stackplot(t,S,I1,I2,I3,R1,R2,R3,labels = ["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"])
+plt.title("Out of butt parameters - Stacked area")
+plt.legend(["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"],loc = 'lower left')
+
+plt.ylabel("Number of people")
+plt.ylim([0, 6 * 10 ** 6])
+plt.show()
+
+plt.plot(t,State_vec)
 plt.title("Out of butt parameters")
 plt.legend(["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"])
 
 plt.ylabel("Number of people")
-plt.ylim([0, 6 * 10 ** 5])
+plt.ylim([0, 6 * 10 ** 6])
 plt.show()
