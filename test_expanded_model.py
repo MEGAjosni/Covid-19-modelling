@@ -76,7 +76,7 @@ for i in range(0,len(t)):
     R3.append(temp[6])
 
 plt.stackplot(t,S,I1,I2,I3,R1,R2,R3,labels = ["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"])
-plt.title("Out of butt parameters - Stacked area")
+plt.title("Stacked area")
 plt.legend(["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"],loc = 'lower left')
 
 plt.ylabel("Number of people")
@@ -84,9 +84,18 @@ plt.ylim([0, 6 * 10 ** 6])
 plt.show()
 
 plt.plot(t,State_vec)
-plt.title("Out of butt parameters")
+plt.title(" All bins ")
 plt.legend(["S", "I1", "I2", "I3", "R1", "R2 (vac)", "R3"])
 
 plt.ylabel("Number of people")
 plt.ylim([0, 6 * 10 ** 6])
+plt.show()
+
+
+plt.plot(t,State_vec)
+plt.title(" infected and dead ")
+plt.legend(["I1", "I2", "I3", "R3"])
+
+plt.ylabel("Number of people")
+plt.ylim([0, 6 * 10 ** 5])
 plt.show()
