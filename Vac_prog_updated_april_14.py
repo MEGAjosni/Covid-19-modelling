@@ -29,15 +29,17 @@ location = "C:/Users/alboa/Documents/GitHub/covid-19-modelling/data/Vaccine prog
 df = pd.read_excel(location,header=1)
 
 # Format relevant columns to np.arrays 
-daily_phizer = np.array([df[df.columns[8]]]).transpose()
-daily_moderna = np.array([df[df.columns[9]]]).transpose()
-daily_astra = np.array([df[df.columns[10]]]).transpose()
+# We also divide by two for the vaccines that require two doses. 
+# 
+daily_phizer = np.array([df[df.columns[8]]]).transpose()/2
+daily_moderna = np.array([df[df.columns[9]]]).transpose()/2
+daily_astra = np.array([df[df.columns[10]]]).transpose()/2
 daily_johnson = np.array([df[df.columns[11]]]).transpose()
-daily_andre = np.array([df[df.columns[12]]]).transpose()
+daily_andre = np.array([df[df.columns[12]]]).transpose()/2
 
 # Adds offset to the effect of vaccine, corresponding tothe number of weeks from delivery to fully vaccinated plus one week for full effect of vaccine. 
 # value for 'others' category is not known, so its set to 5. 
-offsets = [5+1,5+1,int((4+9)/2)+1,1, 5+1]#value for others category is not determined, set to 5. 
+offsets = [5+1,5+1,int((4+9)/2)+1,1, 5+1] #value for others category is not determined, set to 5. 
 
 # Adds zeros corresponding to the offset, so the effect of each vaccine is consistent with
 # vacination time (first data point is still 4th of january )
@@ -62,6 +64,8 @@ andre_active = np.append(andre_active,np.zeros(max_points-len(andre_active)))
 
 # total active vaccines (with individual offsets)
 Total_active = phizer_active + moderna_active + astra_active + johnson_active + andre_active
+
+
 
 # save Total_active to file for use in model.
 np.savetxt('vac_data_kalender_14_04_2021.csv',Total_active,delimiter = ',')
