@@ -5,6 +5,7 @@ Created on Thu Apr 15 13:31:45 2021
 @author: alboa
 """
 import math
+import numpy as np
 
 
 def derivative_expanded(X, mp, t):
@@ -24,7 +25,7 @@ def derivative_expanded(X, mp, t):
     # R2 : vaccinated
     # R3 : dead
 
-    # mp : model parameters
+    # mp : model pareameters
     # beta : Infection rate parameter 
     # gamma1 : Rate of recovery for infected
     # gamma2 : Rate of recovery for ICU
@@ -157,3 +158,43 @@ def simulateSIR_PID(
 
     return t, SIR, beta_vals,error_vals
 
+def param_est_expanded_PID( X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
+        mp: list,  # Model parameters [beta, gamma, N]
+        T: list, # Total added vaccinations
+        K: list, # parameters for penalty function
+        simtime: int = 100,  # How many timeunits into the future that should be simulated
+        stepsize: float = 1,  # t_kp1 - t_k
+        method=RK4  # Numerical method to be used [function]
+       
+                    ):
+
+    Min_betas = []
+    count = 0
+    for i in np.linspace(-2,0,50):
+            for j in np.linspace(-2/1000,0,50):
+                for k in np.linspace(-2*80,0,50):
+                    mp[0] = 0.22
+                    t, State_vec,beta_vals,error_vals = simulateSIR_PID(
+                        X_0=X_0,
+                        mp=mp,
+                        T = T,
+                        K = [i,j,k],
+                        simtime=simtime,
+                        stepsize=1,
+                        method=RK4
+                        
+                    )
+                    
+                    count += 1 
+                    if  count % 1000 == 0:
+                        print("Completed: ", count * 100/(50**3),"%")
+                    if max(error_vals) <= 0:
+                        Min_betas.append([min(beta_vals),i,j,k])
+    
+    opt_parameters = []
+    best_beta = 0
+    for i in range(len(Min_betas)):
+        if Min_betas[i][0] >= best_beta:
+            best_beta = Min_betas[i][0]
+            opt_parameters = [Min_betas[i][1],Min_betas[i][2],Min_betas[i][3]]
+        return opt_parameters,best_beta
