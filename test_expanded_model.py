@@ -113,17 +113,22 @@ plt.legend([ "I2: intensive", "I3: Respirator"])
 
 plt.show()
 #%% PID control simulation 
+import math
 
+K0 = [-1,-1/1000,-80]
 
 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
     X_0=X_0,
     mp=mp,
     T = Activated_vaccines[30:130],
-    K = [-1,-1/1000,-10],
+    K = K0,
     simtime=simdays,
     stepsize=1,
     method=e_ivp.RK4
 )
+max_error = max(error_vals)
+min_beta = min(beta_vals)
+
 S_PID = [] 
 I1_PID = []
 I2_PID = []
@@ -148,12 +153,108 @@ plt.title("Errors (number of people above threshold)")
 plt.legend([ "Error with out PID", ""])
 plt.show()
 
-I2_threshold = [1000 for i in range(101)]
 I3_threshold = [1000 for i in range(101)]
+zeros = [0 for i in range(101)]
 
+x = np.arange(0.0, 2, 0.01)
 fig, axs = plt.subplots(2)
-axs[0].plot(t,I2,t,I3,t,I2_PID,t,I3_PID,t,I2_threshold,t,I3_threshold)
-axs[0].legend(["I2","I3","I2 with PID", "I3 with PID" ,"I2 threshold","I3 threshold"])
+axs[0].plot(t,I3,t,I3_PID,t,I3_threshold)
+axs[0].legend(["I3", "I3 with PID","I3 threshold"])
+beta_vals.append(beta_vals[-1])
+axs[1].plot(t,beta_vals)
+axs[1].legend("Beta Values")
+
+#%% PID control with "gradient descent"
+
+K0 = [-1,-1/1000,-80]
+n = 1000
+
+t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+    X_0=X_0,
+    mp=mp,
+    T = Activated_vaccines[30:130],
+    K = K0,
+    simtime=simdays,
+    stepsize=1,
+    method=e_ivp.RK4
+)
+max_error = max(error_vals)
+min_beta = min(beta_vals)
+
+
+nb_min_beta = min_beta
+for i in range(3):
+    k1 = (i-1)/n
+    for j in range(3):
+        k2= (j-1)/n
+        for k in range(3):
+            k3 = (k-1)/n
+            if i != 1 and j != 1 and k != 1:       
+                K_temp = [K0[0]+k1,K0[1]+k2,K0[2]+k3]
+                t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+                    X_0=X_0,
+                    mp=mp,
+                    T = Activated_vaccines[30:130],
+                    K = K_temp,
+                    simtime=simdays,
+                    stepsize=1,
+                    method=e_ivp.RK4
+                )
+                max_error = max(error_vals)
+                if max_error < 0 and min(beta_vals) > nb_min_beta:
+                    nb_min_beta = min(beta_vals)
+                    Kn = K_temp
+K0 = Kn
+
+while nb_min_beta > min_beta:
+    min_beta = nb_min_beta
+    for i in range(9):
+        k1 = (i-4)/n
+        for j in range(9):
+            k2= (j-4)/n
+            for k in range(9):
+                k3 = (k-4)/n       
+                K_temp = [K0[0]+k1,K0[1]+k2,K0[2]+k3]
+                
+                t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+                    X_0=X_0,
+                    mp=mp,
+                    T = Activated_vaccines[30:130],
+                    K = K_temp,
+                    simtime=simdays,
+                    stepsize=1,
+                    method=e_ivp.RK4
+                )
+                max_error = max(error_vals)
+                if max_error < 0 and min(beta_vals) > nb_min_beta:
+                    nb_min_beta = min(beta_vals)
+                    Kn = K_temp
+    K0 = Kn
+    print(K0)
+    print(nb_min_beta)
+
+t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+    X_0=X_0,
+    mp=mp,
+    T = Activated_vaccines[30:130],
+    K = K0,
+    simtime=simdays,
+    stepsize=1,
+    method=e_ivp.RK4
+)
+
+plt.plot(t,error_vals1,error_vals)
+plt.title("Errors (number of people above threshold)")
+plt.legend([ "Error with out PID", ""])
+plt.show()
+
+I3_threshold = [1000 for i in range(101)]
+zeros = [0 for i in range(101)]
+
+x = np.arange(0.0, 2, 0.01)
+fig, axs = plt.subplots(2)
+axs[0].plot(t,I3,t,I3_PID,t,I3_threshold)
+axs[0].legend(["I3", "I3 with PID","I3 threshold"])
 beta_vals.append(beta_vals[-1])
 axs[1].plot(t,beta_vals)
 axs[1].legend("Beta Values")
