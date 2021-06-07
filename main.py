@@ -9,13 +9,13 @@ import pandas as pd
 
 # Get data
 s = pd.to_datetime('2020-12-01')
+total_days = 100
 b = 8
+data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=total_days)]
 
 
-data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=21)]
-
-test_data = [None] * 21
-for i in range(21):
+test_data = [None] * total_days
+for i in range(total_days):
     test_data[i] = sum(data['NewPositive'][i:i+10]) * 19
 
 
@@ -60,7 +60,7 @@ plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format
     beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
 plt.ylabel("Number of people")
 plt.ylim([0, N])
-T = list(range(21))
+T = list(range(total_days))
 plt.bar(T, test_data)
 plt.show()
 
