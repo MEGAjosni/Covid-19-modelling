@@ -58,7 +58,7 @@ t, State_vec = e_ivp.simulateSIR(
 )
 
 # format output from e_ivp.simulateSIR to be stackplotted (might be unnessecary :D)
-S = [] 
+S = []
 I1 = []
 I2 = []
 I3 = []
@@ -112,7 +112,7 @@ plt.title("Intensive and respirator")
 plt.legend([ "I2: intensive", "I3: Respirator"])
 
 plt.show()
-#%% PID control simulation 
+#%% PID control simulation
 import math
 
 K0 = [-1,-1/1000,-80]
@@ -129,7 +129,7 @@ t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
 max_error = max(error_vals)
 min_beta = min(beta_vals)
 
-S_PID = [] 
+S_PID = []
 I1_PID = []
 I2_PID = []
 I3_PID = []
@@ -189,7 +189,7 @@ for i in range(3):
         k2= (j-1)/n
         for k in range(3):
             k3 = (k-1)/n
-            if i != 1 and j != 1 and k != 1:       
+            if i != 1 and j != 1 and k != 1:
                 K_temp = [K0[0]+k1,K0[1]+k2,K0[2]+k3]
                 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=X_0,
@@ -213,9 +213,9 @@ while nb_min_beta > min_beta:
         for j in range(9):
             k2= (j-4)/n
             for k in range(9):
-                k3 = (k-4)/n       
+                k3 = (k-4)/n
                 K_temp = [K0[0]+k1,K0[1]+k2,K0[2]+k3]
-                
+
                 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=X_0,
                     mp=mp,
