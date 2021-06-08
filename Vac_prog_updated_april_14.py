@@ -6,7 +6,7 @@ Created on Tue Mar 30 11:12:16 2021
 
 
 """
-
+import tikzplotlib
 import pandas as pd
 import numpy as np
 from get_data import*
@@ -103,19 +103,21 @@ plt.title("Daily activated vaccines")
 plt.legend(["Phizer","Moderna","AstraZeneca","Johnson & Johnson","Others","Total"])
 plt.xlabel("days since 04/01/2021")
 plt.ylabel("Active vaccinations")
-
+tikzplotlib.save('Vaccine_plot.tex')
 # plots from 4th of january to last known observation of march 
 
-vac_data_points = len(faerdig_vac_daglig)
-t_vac_data = np.linspace(10,vac_data_points+9,vac_data_points)
-plt.figure(1)
-plt.plot(t,Total_active)
-plt.plot(t_vac_data,faerdig_vac_daglig)
-plt.title("Daily activated vaccines")
-plt.legend(["Planned","Actual"])
-plt.xlabel("days since 04/01/2021")
-plt.ylabel("Active vaccinations")
-sns.despine()
+
+#%%
+#vac_data_points = len(faerdig_vac_daglig)
+#t_vac_data = np.linspace(10,vac_data_points+9,vac_data_points)
+#plt.figure(1)
+#plt.plot(t,Total_active)
+#plt.plot(t_vac_data,faerdig_vac_daglig)
+#plt.title("Daily activated vaccines")
+#plt.legend(["Planned","Actual"])
+#plt.xlabel("days since 04/01/2021")
+#plt.ylabel("Active vaccinations")
+#sns.despine()
 
 
 
