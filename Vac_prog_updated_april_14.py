@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from get_data import*
 import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 
 
@@ -94,16 +94,16 @@ plt.figure(0)
 plt.plot(t[0:len(phizer_active)],phizer_active)
 plt.plot(t[0:len(moderna_active)],moderna_active)
 plt.plot(t[0:len(astra_active)],astra_active)
-plt.plot(t[0:len(johnson_active)],johnson_active)
+#plt.plot(t[0:len(johnson_active)],johnson_active)
 plt.plot(t[0:len(andre_active)],andre_active)
 plt.plot(t[0:len(Total_active)],Total_active,':',linewidth=2,color='b')
-sns.despine()
+
 
 plt.title("Daily activated vaccines")
-plt.legend(["Phizer","Moderna","AstraZeneca","Johnson & Johnson","Others","Total"])
+plt.legend(["Phizer","Moderna","AstraZeneca","Others","Total"])
 plt.xlabel("days since 04/01/2021")
 plt.ylabel("Active vaccinations")
-tikzplotlib.save('Vaccine_plot.tex')
+tikzplotlib.save('Vaccine_plot.tex',axis_height='6cm', axis_width='15cm')
 # plots from 4th of january to last known observation of march 
 
 
