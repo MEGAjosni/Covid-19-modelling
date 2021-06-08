@@ -270,3 +270,11 @@ axs[1].plot(t,beta_vals)
 axs[1].legend("Beta Values")
 
 #%% Optimal parameters of the expanded model
+import scipy.io
+mat = scipy.io.loadmat('Inter_data.mat')
+T = len(mat["All_Data"])
+
+I2 = [0 for i in range(T)]
+I3 = [0 for i in range(T)]
+for i in range(T):
+    [I2[i],I3[i]] = mat["All_Data"][i]
