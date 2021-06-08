@@ -112,6 +112,8 @@ plt.title("Intensive and respirator")
 plt.legend([ "I2: intensive", "I3: Respirator"])
 
 plt.show()
+
+
 #%% PID control simulation
 import math
 
@@ -258,3 +260,5 @@ axs[0].legend(["I3", "I3 with PID","I3 threshold"])
 beta_vals.append(beta_vals[-1])
 axs[1].plot(t,beta_vals)
 axs[1].legend("Beta Values")
+
+#%% Optimal parameters of the expanded model
