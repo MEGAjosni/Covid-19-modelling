@@ -16,7 +16,7 @@ data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.tim
 
 test_data = [None] * total_days
 for i in range(total_days):
-    test_data[i] = sum(data['NewPositive'][i:i+10]) * 19
+    test_data[i] = sum(data['NewPositive'][i:i+9]) * 19
 
 
 # Initial values
