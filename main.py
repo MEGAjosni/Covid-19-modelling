@@ -1,11 +1,12 @@
 import basic_ivp_funcs as b_ivp
 import params_est_funcs as pest
+import param_est_only_beta as pest_beta
 import get_data as gd
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
 import pandas as pd
-
+import numpy as np
 
 # Get data
 s = pd.to_datetime('2020-12-01')
@@ -25,23 +26,36 @@ I_0 = test_data[0]
 R_0 = 230000
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
-
+X_0 = np.asarray(X_0)
 
 # Find optimal parameters
+#c1 = time.process_time()
+#beta_opt, gamma_opt, errs = pest.estimate(
+#    X_0=X_0,
+#    data=test_data,
+#    n_points=10,
+#    layers=5
+#)
+#c2 = time.process_time()
+
+#optimal parameter beta using frobenius norm
+# using gamma = 1/9
 c1 = time.process_time()
-beta_opt, gamma_opt, errs = pest.estimate(
+gamma = 1/9
+beta_opt,errs = pest_beta.estimate_beta(
     X_0=X_0,
     data=test_data,
+    gamma = gamma,
     n_points=10,
-    layers=5
-)
+    layers=5)
 c2 = time.process_time()
+
 
 # Simulate optimal solution
 simdays = 100
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
-mp = [beta_opt, gamma_opt, N]
+mp = [beta_opt, gamma, N]
 
 t, SIR = b_ivp.simulateSIR(
     X_0=X_0,
@@ -57,7 +71,7 @@ plt.plot(t, SIR)
 plt.title("Simulation using optimal parameters")
 plt.legend(["Susceptible", "Infected", "Removed"])
 plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
-    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
+    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma))
 plt.ylabel("Number of people")
 plt.ylim([0, N])
 T = list(range(total_days))
