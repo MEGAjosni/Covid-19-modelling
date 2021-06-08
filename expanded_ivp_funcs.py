@@ -170,9 +170,9 @@ def param_est_expanded_PID( X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
 
     Min_betas = []
     count = 0
-    for i in np.linspace(-2,0,50):
-            for j in np.linspace(-2/1000,0,50):
-                for k in np.linspace(-2*80,0,50):
+    for i in np.linspace(-4,0,50):
+            for j in np.linspace(-10/1000,0,50):
+                for k in np.linspace(-10*80,0,50):
                     mp[0] = 0.22
                     t, State_vec,beta_vals,error_vals = simulateSIR_PID(
                         X_0=X_0,

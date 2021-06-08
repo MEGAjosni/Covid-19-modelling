@@ -48,9 +48,9 @@ mp = [0.22,
 
 Min_betas = []
 count = 0
-for i in np.linspace(-2,0,50):
-        for j in np.linspace(-2/1000,0,50):
-            for k in np.linspace(-2*80,0,50):
+for i in np.linspace(-10,0,100):
+        for j in np.linspace(-1/10,0,100):
+            for k in np.linspace(-2*80,0,100):
                 mp[0] = 0.22
                 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=X_0,
@@ -64,11 +64,11 @@ for i in np.linspace(-2,0,50):
                 )
                 
                 count += 1 
-                if  count % 1000 == 0:
-                    print("Completed %: ", count * 100/(50**3))
+                if  count % 10000 == 0:
+                    print("Completed: ", count * 100/(100**3),"%")
                 if max(error_vals) <= 0:
                     Min_betas.append([min(beta_vals),i,j,k])
-                    
+
 opt_parameters = []
 best_beta = 0
 for i in range(len(Min_betas)):
