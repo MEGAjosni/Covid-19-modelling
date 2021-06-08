@@ -43,7 +43,7 @@ def derivative_expanded(X, mp, t):
     beta, gamma1, gamma2, gamma3, theta1, theta2, phi1, phi2, N = mp
     S, I1, I2, I3, R1, R2, R3 = X
 
-    dX = [
+    dX = np.array([
         -((beta * I1)/ N + (t / (S + I1 + R1))) * S,  # dS/dt
         (beta * I1 / N) * S - (gamma1 + phi1 +(t / (S + I1 + R1))) * I1,# dI1/dt
         phi1 * I1 - (gamma2 + theta1 + phi2) * I2,  # dI2/dt
@@ -51,17 +51,16 @@ def derivative_expanded(X, mp, t):
         gamma1 * I1 + gamma2 * I2 + gamma3 * I3 - (t /(S + I1 + R1)) * R2,  # dR1/dt
         t, # dR2/dt
         theta1 * I1 + theta2 * I2,  # dR3/dt
-
-    ]
+    ])
 
     return dX
 
 
 def RK4(
-        X_k: list,  # Values of the expanded SIR at time t_k
+        X_k: np.array,  # Values of the expanded SIR at time t_k
         mp: list,  # Model parameters [beta, gamma, N]
         t: int, # added vacinations
-        stepsize: float = 1# t_kp1 - t_k
+        stepsize: int = 1 # t_kp1 - t_k
         
 ):
     # *** Description ***
@@ -70,14 +69,12 @@ def RK4(
     # *** Output ***
     # X_kp1 [list]:         Values of SIR at time t_kp1
 
-    N = range(len(X_k))
+    K_1 = derivative_expanded(X_k, mp, t)
+    K_2 = derivative_expanded(X_k + 1/2 * stepsize * K_1, mp, t)
+    K_3 = derivative_expanded(X_k + 1/2 * stepsize * K_2, mp, t)
+    K_4 = derivative_expanded(X_k + stepsize * K_3, mp, t)
 
-    K_1 = derivative_expanded(X_k, mp,t)
-    K_2 = derivative_expanded([X_k[i] + 1 / 2 * stepsize * K_1[i] for i in N], mp,t)
-    K_3 = derivative_expanded([X_k[i] + 1 / 2 * stepsize * K_2[i] for i in N], mp,t)
-    K_4 = derivative_expanded([X_k[i] + stepsize * K_3[i] for i in N], mp,t)
-
-    X_kp1 = [X_k[i] + stepsize / 6 * (K_1[i] + 2 * (K_2[i] + K_3[i]) + K_4[i]) for i in N]
+    X_kp1 = X_k + stepsize / 6 * (K_1 + 2 * (K_2 + K_3) + K_4)
 
     return X_kp1
 
@@ -101,9 +98,9 @@ def PID_cont(X,mp,d,e_total,e_prev,K):
         
    
 def simulateSIR(
-        X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
+        X_0: np.array,  # Initial values of SIR [S_0, I_0, R_0]
         mp: list,  # Model parameters [beta, gamma, N]
-        T: list, # Total added vaccinations
+        T: np.array, # Total added vaccinations
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 1,  # t_kp1 - t_k
         method=RK4  # Numerical method to be used [function]
@@ -120,7 +117,7 @@ def simulateSIR(
     t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
 
     for i in range(int(simtime / stepsize)):
-        SIR.append(method(SIR[i], mp,T[i], stepsize))
+        SIR.append(method(SIR[i], mp, T[i], stepsize))
         
 
     return t, SIR

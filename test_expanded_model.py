@@ -7,6 +7,7 @@ Created on Thu Apr 15 15:22:09 2021
 import matplotlib.pyplot as plt
 import expanded_ivp_funcs as e_ivp
 import numpy as np
+import time
 
 # Import added vaccine data
 Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv') # 1st observation is january 4th
@@ -21,13 +22,15 @@ simdays = 100
 # R2 : vaccinated
 # R3 : dead
 
-X_0 = [(6 * 10 ** 6 - 800000),
-       30000,
-       400,
-       300,
-       300000,
-       500000,
-       700]
+X_0 = np.array([
+    5.2 * 10 ** 6,
+    30000,
+    400,
+    300,
+    300000,
+    500000,
+    700
+])
 # mp : model parameters
 # beta : Infection rate parameter
 # gamma1 : Rate of recovery for infected
@@ -48,14 +51,19 @@ mp = [0.22,
       0.5,
       (6 * 10 ** 6)]
 
-t, State_vec = e_ivp.simulateSIR(
-    X_0=X_0,
-    mp=mp,
-    T = Activated_vaccines[30:130],
-    simtime=simdays,
-    stepsize=1,
-    method=e_ivp.RK4
-)
+t0 = time.time()
+for i in range(1000):
+    t, State_vec = e_ivp.simulateSIR(
+        X_0=X_0,
+        mp=mp,
+        T=Activated_vaccines[30:130],
+        simtime=simdays,
+        stepsize=1,
+        method=e_ivp.RK4
+    )
+t1 = time.time()
+print('Total time:', (t1-t0)/1000, 's')
+
 
 # format output from e_ivp.simulateSIR to be stackplotted (might be unnessecary :D)
 S = []

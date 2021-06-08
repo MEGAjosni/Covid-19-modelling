@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import time
 import datetime as dt
 import pandas as pd
+import tikzplotlib
 
 
 # Get data
@@ -62,6 +63,7 @@ plt.ylabel("Number of people")
 plt.ylim([0, N])
 T = list(range(total_days))
 plt.bar(T, test_data)
+tikzplotlib.save('test.tex')
 plt.show()
 
 # data = np.array(errs)
