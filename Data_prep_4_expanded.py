@@ -27,8 +27,8 @@ forecast = True
 mat = scipy.io.loadmat('data/Inter_data.mat') #1st observation march 11 2020
 Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv')# 1st observation jan 4th 2021
 Data_Infected = gd.infect_dict['Test_pos_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
-Data_Dead = gd.infect_dict['Deaths_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
-Data_Hospitalised = gd.infect_dict['Newly_admitted_over_time']
+Data_Dead = gd.infect_dict['Deaths_over_time']#[s1 : s2 + dt.timedelta(days=sim_days)]
+Data_Hospitalized = gd.infect_dict['Newly_admitted_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
 
 
 # Offsets:
@@ -51,8 +51,8 @@ I3 = I3[0:((s2-s1).days+sim_days)]
 #Construct data matrix 
 N = 5813298 
 
-R3 = DEAD_Offset
-I2 = HOSPITAL_Offset
+R3 = list(DEAD_Offset)
+I2 = list(HOSPITAL_Offset)
 
 S = [N]
 
@@ -60,12 +60,12 @@ for i in range((s2-s1).days+sim_days):
     print(i)
     
     # create R3
-    if i > len(DEAD_Offset):
-        np.concatenate((R3,R3[i-1]+Data_Dead['Antal_døde']))
+    if i > len(DEAD_Offset)-1:
+        R3.append(R3[i-1]+Data_Dead['Antal_dÃ¸de'][i])
     
     # create I2
-    if i > len(HOSPITAL_Offset):
-        np.concatenate((I2,Data_Dead['Antal_døde'][i-int((Gamma2)**(-1)):i]))
+    if i > len(HOSPITAL_Offset)-1:
+        I2.append(Data_Hospitalized['Total'][i-int((Gamma2)**(-1)):i])
     
     # create S # first let S be equal to N, then subsequently let S be equal to s_-1 plus
     if i != 0:
