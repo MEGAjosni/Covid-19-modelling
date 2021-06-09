@@ -78,7 +78,6 @@ def simulateSV(
 
     return t, V
     
-    
 >>>>>>> Stashed changes:inivalfunctions.py
 """
 def ExplicitEuler(

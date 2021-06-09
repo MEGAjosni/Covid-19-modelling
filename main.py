@@ -43,7 +43,17 @@ for i in range(days+simdays):
     X.append([S[i],I[i],R[i]])
 
 X = np.asarray(X)
+#start date
+s = pd.to_datetime('2020-12-01')
+#start of pandemic
+s_p = pd.to_datetime('2020-02-25')
+b = 8
+num_days = 21
 
+
+print(gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag']['Kumuleret antal færdigvacc.'])
+
+data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=num_days)]
 # Initial values
 S_0 = S[days]
 I_0 = I[days]
@@ -51,6 +61,8 @@ R_0 = R[days]
 X_0 = [S_0,I_0,R_0]
 test_data = X[days:days+simdays,:]
 
+
+X_0 = [N - I_0 - R_0, I_0, R_0]
 
 # Find optimal parameters
 #c1 = time.process_time()
@@ -112,3 +124,24 @@ plt.show()
 # ax.plot_surface(x, y, data.T)
 # ax.set(xlabel=r'$\beta$', ylabel=r'$\gamma$', zlabel='Error')
 # plt.show()
+
+"""
+t, SV = ivp.simulateSV(
+    V_start=V_0,
+    mp=mp,
+    simtime=simdays,
+    method=ivp.RK4V
+)
+
+# Plot optimal solution - kummuleret
+plt.plot(t, SV)
+plt.title("Simulation using optimal parameters")
+plt.legend(["Acummulated"])
+plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
+    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
+plt.ylabel("Number of people")
+plt.ylim([0, N])
+T = list(range(num_days))
+plt.bar(T, V_data)
+plt.show()
+"""
