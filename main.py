@@ -6,7 +6,9 @@ import time
 import datetime as dt
 import pandas as pd
 import tikzplotlib
+import numpy as np
 
+print(gd.infect_dict['Test_pos_over_time_antigen'])
 
 # Get data
 #startdata
