@@ -1,12 +1,12 @@
 import basic_ivp_funcs as b_ivp
 import params_est_funcs as pest
-import param_est_only_beta as pest_beta
 import get_data as gd
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
 import pandas as pd
-import numpy as np
+import tikzplotlib
+
 
 # Get data
 #startdata
@@ -32,11 +32,11 @@ for i in range(days+simdays):
         I.append(sum(DI[i-9:i]))
     if i == 0:
         S.append(N-DI[i])
-    else:    
+    else:
         S.append(S[i-1] - DI[i])
-        
+
     R.append(N-S[i]-I[i])
-    
+
     X.append([S[i],I[i],R[i]])
 
 X = np.asarray(X)
@@ -64,8 +64,7 @@ test_data = X[days:days+simdays,:]
 # using gamma = 1/9
 
 c1 = time.process_time()
-gamma = 1/9
-beta_opt,errs = pest_beta.estimate_beta(
+beta_opt, gamma_opt, errs = pest.estimate(
     X_0=X_0,
     data=test_data,
     gamma = gamma,
@@ -75,10 +74,7 @@ c2 = time.process_time()
 # Simulate optimal solution
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
-
-mp = [beta_opt, gamma, N]
-
-mp = [beta_opt, gamma, N]
+mp = [beta_opt, gamma_opt, N]
 
 t, SIR = b_ivp.simulateSIR(
     X_0=X_0,
@@ -94,11 +90,12 @@ plt.plot(t, np.asarray(SIR)[:,1])
 plt.title("Simulation using optimal parameters")
 plt.legend(["Susceptible", "Infected", "Removed"])
 plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
-    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma))
+    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
 plt.ylabel("Number of people")
-plt.ylim([0, max(I)+1000])
-T = list(range(simdays))
-plt.bar(T, I[days:days+simdays])
+plt.ylim([0, N])
+T = list(range(total_days))
+plt.bar(T, test_data)
+tikzplotlib.save('test.tex')
 plt.show()
 
 # data = np.array(errs)
