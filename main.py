@@ -44,13 +44,6 @@ for i in range(days+simdays):
 
 X = np.asarray(X)
 
-data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=num_days)]
-
-test_data = [None] * num_days
-V_data = [None] * num_days
-for i in range(num_days):
-    test_data[i] = sum(data['NewPositive'][i:i+10]) * 19
-    V_data[i] = sum(data['NewPositive'][0:i+10]) * 19
 # Initial values
 S_0 = S[days]
 I_0 = I[days]
@@ -69,15 +62,15 @@ test_data = X[days:days+simdays,:]
 #)
 #c2 = time.process_time()
 
-#optimal parameter beta using frobenius norm
+#optimal parameter beta using frobenius norm and predefined gamma
 # using
-gamma = 1/9
+gamma_opt = 1/9
 
 c1 = time.process_time()
-beta_opt, gamma_opt, errs = pestbeta.estimate_beta(
+beta_opt, errs = pestbeta.estimate_beta(
     X_0=X_0,
-    data=X,
-    gamma = gamma,
+    data=test_data,
+    gamma = gamma_opt,
     n_points=100,
     layers=5)
 c2 = time.process_time()
@@ -102,7 +95,7 @@ plt.legend(["Susceptible", "Infected", "Removed"])
 plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
     beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
 plt.ylabel("Number of people")
-plt.ylim([0, N])
+plt.ylim([0, max(I)+1000])
 T = list(range(simdays))
 plt.bar(T,I[days:days+simdays])
 plt.show()

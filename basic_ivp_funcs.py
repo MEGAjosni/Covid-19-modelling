@@ -50,7 +50,7 @@ def RK4V(
     V_kp1 = V + stepsize / 6 * (K_1 + 2 * (K_2 + K_3) + K_4)
     return V_kp1
 
-
+"""
 def simulateSV(
 <<<<<<< Updated upstream:basic_ivp_funcs.py
         V_0: int,  # Initial values of V_0
@@ -80,7 +80,7 @@ def simulateSV(
     
     
 >>>>>>> Stashed changes:inivalfunctions.py
-
+"""
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k
         mp: list,  # Model parameters [beta, gamma, N]
