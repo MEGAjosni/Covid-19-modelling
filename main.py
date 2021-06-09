@@ -2,10 +2,12 @@ import basic_ivp_funcs as b_ivp
 import params_est_funcs as pest
 import get_data as gd
 import matplotlib.pyplot as plt
+import param_est_only_beta as pestbeta
 import time
 import datetime as dt
 import pandas as pd
-import tikzplotlib
+#import tikzplotlib
+import numpy as np
 
 
 # Get data
@@ -61,12 +63,13 @@ test_data = X[days:days+simdays,:]
 #c2 = time.process_time()
 
 #optimal parameter beta using frobenius norm
-# using gamma = 1/9
+# using 
+gamma = 1/9
 
 c1 = time.process_time()
-beta_opt, gamma_opt, errs = pest.estimate(
+beta_opt, gamma_opt, errs = pestbeta.estimate_beta(
     X_0=X_0,
-    data=test_data,
+    data=X,
     gamma = gamma,
     n_points=100,
     layers=5)
@@ -93,10 +96,11 @@ plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format
     beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
 plt.ylabel("Number of people")
 plt.ylim([0, N])
-T = list(range(total_days))
-plt.bar(T, test_data)
-tikzplotlib.save('test.tex')
+T = list(range(simdays))
+plt.bar(T,I[days:days+simdays])
 plt.show()
+#tikzplotlib.save('test.tex')
+
 
 # data = np.array(errs)
 # length = data.shape[0]
@@ -108,3 +112,5 @@ plt.show()
 # ax.plot_surface(x, y, data.T)
 # ax.set(xlabel=r'$\beta$', ylabel=r'$\gamma$', zlabel='Error')
 # plt.show()
+
+
