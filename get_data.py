@@ -76,8 +76,9 @@ for f in os.listdir(data_dir):
 
                         format1 = sum([str(x[date_name][j])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
                         format2 = sum([str(x[date_name][j])[i] == 'dd-mm-yyyy'[i] for i in range(10)]) == 2
+                        format3 = sum([str(x[date_name][j])[i] == 'dd/mm/yyyy'[i] for i in range(10)]) == 2
 
-                        if format1 or format2:
+                        if format1 or format2 or format3:
                             break
                     else:
                         x = x.drop(index=[j])
