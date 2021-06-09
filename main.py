@@ -11,6 +11,7 @@ import numpy as np
 
 
 # Get data
+<<<<<<< Updated upstream
 #startdata
 #start of pandemic
 s1 = pd.to_datetime('2020-01-27')
@@ -42,14 +43,40 @@ for i in range(days+simdays):
     X.append([S[i],I[i],R[i]])
 
 X = np.asarray(X)
+=======
+#start date
+s = pd.to_datetime('2020-12-01')
+#start of pandemic
+s_p = pd.to_datetime('2020-02-25')
+b = 8
+num_days = 21
 
 
+print(gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag']['Kumuleret antal færdigvacc.'])
+>>>>>>> Stashed changes
+
+data = gd.infect_dict['Test_pos_over_time'][s - dt.timedelta(days=b): s + dt.timedelta(days=num_days)]
+
+test_data = [None] * num_days
+V_data = [None] * num_days
+for i in range(num_days):
+    test_data[i] = sum(data['NewPositive'][i:i+10]) * 19
+    V_data[i] = sum(data['NewPositive'][0:i+10]) * 19
 # Initial values
+<<<<<<< Updated upstream
 S_0 = S[days]
 I_0 = I[days]
 R_0 = R[days]
 X_0 = [S_0,I_0,R_0]
 test_data = X[days:days+simdays,:]
+=======
+N = 5800000
+I_0 = test_data[0]
+R_0 = 230000
+V_0 = V_data[0]
+
+X_0 = [N - I_0 - R_0, I_0, R_0]
+>>>>>>> Stashed changes
 
 
 # Find optimal parameters
@@ -96,8 +123,13 @@ plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format
     beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
 plt.ylabel("Number of people")
 plt.ylim([0, N])
+<<<<<<< Updated upstream
 T = list(range(simdays))
 plt.bar(T,I[days:days+simdays])
+=======
+T = list(range(num_days))
+plt.bar(T, test_data)
+>>>>>>> Stashed changes
 plt.show()
 #tikzplotlib.save('test.tex')
 
@@ -112,5 +144,26 @@ plt.show()
 # ax.plot_surface(x, y, data.T)
 # ax.set(xlabel=r'$\beta$', ylabel=r'$\gamma$', zlabel='Error')
 # plt.show()
+<<<<<<< Updated upstream
 
 
+=======
+t, SV = ivp.simulateSV(
+    V_start=V_0,
+    mp=mp,
+    simtime=simdays,
+    method=ivp.RK4V
+)
+
+# Plot optimal solution - kummuleret
+plt.plot(t, SV)
+plt.title("Simulation using optimal parameters")
+plt.legend(["Acummulated"])
+plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
+    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
+plt.ylabel("Number of people")
+plt.ylim([0, N])
+T = list(range(num_days))
+plt.bar(T, V_data)
+plt.show()
+>>>>>>> Stashed changes
