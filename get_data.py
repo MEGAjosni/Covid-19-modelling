@@ -3,6 +3,7 @@ import zipfile
 import pandas as pd
 import os
 import shutil
+import pickle
 
 # ***** Description *****
 #
@@ -23,21 +24,24 @@ import shutil
 #
 # ***** End *****
 
+
 # Folder where data should be stored
 data_dir = os.getcwd() + '\\data\\infection\\'
 if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
 # Get zipped data folder
-url = 'https://files.ssi.dk/covid19/overvagning/data/data-epidemiologiske-rapport-04032021-30bv'  # Zip download-link
+url = 'https://files.ssi.dk/covid19/overvagning/data/overvaagningsdata-covid19-08062021-f67f'  # Zip download-link
+# Url changes daily check https://covid19.ssi.dk/overvagningsdata/download-fil-med-overvaagningdata to find newest link.
+zip_name = url[-39:] + '.zip'
 r = requests.get(url, allow_redirects=True)
-open(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip', 'wb').write(r.content)
+open(data_dir + zip_name, 'wb').write(r.content)
 
 # Unzip and extract files
-with zipfile.ZipFile(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip', 'r') as zip_ref:
+with zipfile.ZipFile(data_dir + zip_name, 'r') as zip_ref:
     zip_ref.extractall(data_dir)
 
-os.remove(data_dir + 'Data-Epidemiologiske-Rapport-04032021-30bv.zip')
+os.remove(data_dir + zip_name)
 
 infect_dict: dict = {}
 
@@ -72,8 +76,9 @@ for f in os.listdir(data_dir):
 
                         format1 = sum([str(x[date_name][j])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
                         format2 = sum([str(x[date_name][j])[i] == 'dd-mm-yyyy'[i] for i in range(10)]) == 2
+                        format3 = sum([str(x[date_name][j])[i] == 'dd/mm/yyyy'[i] for i in range(10)]) == 2
 
-                        if format1 or format2:
+                        if format1 or format2 or format3:
                             break
                     else:
                         x = x.drop(index=[j])
@@ -87,6 +92,10 @@ for f in os.listdir(data_dir):
 
         # Insert data to dictionary
         infect_dict[f[0:-4]] = x
+
+a_file = open('infect_data.pkl', 'wb')
+pickle.dump(infect_dict, a_file)
+a_file.close()
 
 # >>> Get vaccine data <<<
 # Folder where data should be stored

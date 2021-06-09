@@ -24,8 +24,8 @@ def derivative(
 
 
 def derivativeV(
-        V_0: int, #Number of accumulated infected at time t_0
-        V: int,  # Number to compute derivative of
+        V_0: float, #Number of accumulated infected at time t_0
+        V: float,  # Number to compute derivative of
         mp: list  # Model parameters [beta, gamma, N]
             ):
     beta, gamma, N = mp
@@ -38,8 +38,8 @@ def derivativeV(
 
 
 def RK4V(
-        V_0: int, #Number of accumulated infected at time t_0
-        V: int ,  # Number to compute derivative of
+        V_0: float, #Number of accumulated infected at time t_0
+        V: float ,  # Number to compute derivative of
         mp: list,  # Model parameters [beta, gamma, N]
         stepsize: float = 0.1  # t_kp1 - t_k
             ):
@@ -50,14 +50,19 @@ def RK4V(
     V_kp1 = V + stepsize / 6 * (K_1 + 2 * (K_2 + K_3) + K_4)
     return V_kp1
 
-
+"""
 def simulateSV(
+<<<<<<< Updated upstream:basic_ivp_funcs.py
         V_0: int,  # Initial values of V_0
+=======
+        V_start: float,  # Initial values in simulation of V
+>>>>>>> Stashed changes:inivalfunctions.py
         mp: list,  # Model parameters [beta, gamma, N]
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
         method=RK4V  # Numerical method to be used [function]
             ):
+<<<<<<< Updated upstream:basic_ivp_funcs.py
     SV = [V_0]
     t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
     for i in range(int(simtime / stepsize)):
@@ -65,7 +70,16 @@ def simulateSV(
 
     return t, SV
 
+=======
+    V = [V_start]
+    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
+    for i in range(int(simtime / stepsize)):
+        V.append(method(1, V[i], mp, stepsize))
 
+    return t, V
+    
+>>>>>>> Stashed changes:inivalfunctions.py
+"""
 def ExplicitEuler(
         X_k: list,  # Values of SIR at time t_k
         mp: list,  # Model parameters [beta, gamma, N]
