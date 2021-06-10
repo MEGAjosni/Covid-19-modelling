@@ -10,6 +10,7 @@ from sys import exit
 
 
 def derivative_expanded(X, mp, t):
+
     # *** Description ***
     # Computes the derivative of X using model parameters
 

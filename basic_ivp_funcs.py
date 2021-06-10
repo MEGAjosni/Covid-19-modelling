@@ -7,6 +7,7 @@ def derivative(
         X: list,  # Vector to compute derivative of
         mp: list  # Model parameters [beta, gamma, N]
 ):
+
     # *** Description ***
     # Computes the derivative of X using model parameters
 
