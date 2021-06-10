@@ -1,4 +1,4 @@
-# >>> Files <<<
+# >>> Scripts <<<
 import basic_ivp_funcs as b_ivp
 import get_data as gd
 
@@ -22,13 +22,11 @@ def estimate_beta(
     precision=5
 ):
 
-    print(data)
-
     mse_min = math.inf
     beta_opt = 0
 
     for k in range(precision):
-        for beta in tqdm(np.linspace(beta_opt - 1/(10**k), beta_opt + 1/(10**k), 21)):
+        for beta in np.linspace(beta_opt - 1/(10**k), beta_opt + 1/(10**k), 21):
             if beta >= 0:
                 _, SIR = b_ivp.simulateSIR(
                     X_0=X_0,
@@ -40,29 +38,31 @@ def estimate_beta(
                 mse = (np.square(sim_data[0::10] - data[t1:t2].to_numpy())).mean()
                 # print(mse)
                 if mse < mse_min:
-                    print('triggered')
                     mse_min = mse
                     beta_opt = beta
 
     return beta_opt
 
 
-t1 = pd.to_datetime('2020-12-01')  # start day
-simdays = dt.timedelta(days=100)
-overshoot = dt.timedelta(days=7)
+start_day = '2020-12-01'  # start day
+simdays = 100
+overshoot = 7
 
-data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t1-overshoot:t1+simdays+overshoot]
-data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t1-overshoot:t1+simdays+overshoot]
+t0 = pd.to_datetime(start_day)
+simdays = dt.timedelta(days=simdays)
+overshoot = dt.timedelta(days=overshoot)
 
+data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
+data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
 data_total = data_pcr + data_antigen
 
+opt_beta = np.empty(shape=simdays.days, dtype=float)
 
-opt_beta = np.empty(shape=100, dtype=float)
+for i in range(simdays.days):
+    opt_beta[i] = estimate_beta(np.array([5800000, 1000, 0]) , t0-overshoot+dt.timedelta(days=i), t0+overshoot+dt.timedelta(days=i), data_total)
+    # print([t0-overshoot+dt.timedelta(days=i), t0+dt.timedelta(days=i), t0+overshoot+dt.timedelta(days=i)])
 
-beta = estimate_beta(np.array([5800000, 30000, 0]) , t1, t1+simdays, data_total)
-print(beta)
-
-
+print(opt_beta)
 
 
 
