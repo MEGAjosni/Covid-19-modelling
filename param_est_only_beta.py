@@ -35,9 +35,7 @@ def estimate_beta(
                 t, SIR = b_ivp.simulateSIR(X_0, mp, simdays, stepsize, b_ivp.RK4)
                 data_est = [SIR[int(i / stepsize)] for i in range(simdays)]
                 data_est = np.array(data_est)
-                print(data_est)
-                print(data)
-                err = (np.linalg.norm(data-data_est))**2
+                err = (np.linalg.norm(data[:,1]-data_est[:,1]))**2
                 if err < min_err or min_err == -1:
                     bg_opt_index = [i]
                     min_err = err
