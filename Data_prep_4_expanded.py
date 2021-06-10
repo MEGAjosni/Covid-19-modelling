@@ -71,3 +71,4 @@ for i in tqdm(range((s2 - s1).days + sim_days)):
         # NOTE MAYBE ADJUST HERE
         temp = S[i - 1] - Data_Infected['NewPositive'][i] - (R2[i - 1] * (S[i - 1] / v_pop))
         S.append(temp)
+        
