@@ -15,7 +15,7 @@ import numpy as np
 print(gd.infect_dict['Test_pos_over_time_antigen'])
 
 
-DI =  gd.infect_dict['Test_pos_over_time']['NewPositive']
+DI =  gd.infect_dict['Test_pos_over_time_antigen']['NewPositive']+gd.infect_dict['Test_pos_over_time']['NewPositive']
 
 N = 5800000
 S = []

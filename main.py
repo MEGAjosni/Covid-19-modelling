@@ -1,8 +1,7 @@
 import basic_ivp_funcs as b_ivp
-import params_est_funcs as pest
+import estimate_beta as pestbeta
 import get_data as gd
 import matplotlib.pyplot as plt
-import param_est_only_beta as pestbeta
 import time
 import datetime as dt
 import pandas as pd
@@ -24,7 +23,8 @@ sim_days = 21
 #index for initial value
 start_day = (s2-s1).days
 
-test_data = X[start_day:start_day+sim_days,:] #start values
+test_data = X.to_numpy(copy = True)
+test_data = test_data[start_day:start_day+sim_days,:]
 X_0 = test_data[0,:]
 
 #find optimal beta
@@ -33,7 +33,6 @@ beta_opt, errs = pestbeta.estimate_beta(
     X_0=X_0,
     data=test_data,
     gamma = gamma,
-    n_points=10,
     layers=5)
 
 # Simulate optimal solution
@@ -64,7 +63,7 @@ plt.show()
 
 #%% Variying beta
 
-
+"""
 gamma = 1/9
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
@@ -90,3 +89,4 @@ plt.ylim([0, max(I)+1000])
 T = list(range(simdays))
 plt.bar(T,I[days:days+simdays])
 plt.show()
+"""
