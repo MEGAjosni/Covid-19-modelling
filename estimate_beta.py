@@ -17,15 +17,15 @@ def estimate_beta(
         X_0,
         t1,  # Start
         t2,  # Stop
-        data,
-        gamma=1 / 9,
-        precision=1
+        real_data,
+        gamma=1/9,
+        precision=5
 ):
     err_min = math.inf
-    beta_opt = 0
+    best_beta = 0
 
     for k in range(precision):
-        for beta in np.linspace(beta_opt - 1 / (10 ** k), beta_opt + 1 / (10 ** k), 21):
+        for beta in np.linspace(best_beta - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21):
             if beta >= 0:
                 _, SIR = b_ivp.simulateSIR(
                     X_0=X_0,
@@ -34,13 +34,12 @@ def estimate_beta(
                     simtime=(t2 - t1).days
                 )
                 sim_data = SIR[:, 1]
-                err = (np.square(sim_data[0::10] - data[t1:t2].to_numpy())).mean()
-                # print(mse)
+                err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
-                    beta_opt = beta
+                    best_beta = beta
 
-    return beta_opt
+    return best_beta
 
 
 # Specify period and overshoot
@@ -51,23 +50,23 @@ overshoot = 7
 t0 = pd.to_datetime(start_day)
 overshoot = dt.timedelta(days=overshoot)
 
+# Load data
 data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
 data_inf = data['I']
+print(data)
 
-# data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
-# data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
-# data_total = data_pcr + data_antigen
-
+# Search for best values of beta
 opt_beta = np.empty(shape=simdays, dtype=float)
 
 for i in tqdm(range(simdays)):
     opt_beta[i] = estimate_beta(
-        X_0=data.loc[t0 + dt.timedelta(days=i) - overshoot].to_numpy(),
+        X_0=data.loc[t0 + dt.timedelta(days=i) - overshoot].to_numpy(copy=True),
         t1=t0 - overshoot + dt.timedelta(days=i),
         t2=t0 + overshoot + dt.timedelta(days=i),
-        data=data_inf
+        real_data=data_inf
     )
 
+# Make plot of results
 t = pd.date_range(t0, periods=simdays).strftime('%d/%m-%Y')
 
 fig, ax1 = plt.subplots()
@@ -88,6 +87,12 @@ plt.xticks(ticks=t[0::7], labels=t[0::7])
 
 fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
+
+
+# data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
+# data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
+# data_total = data_pcr + data_antigen
+
 
 
 #
