@@ -11,11 +11,10 @@ def estimate_beta(
 
 ):
     # *** Description ***
-    # Computes the values of beta and gamma that gives the best modelfit on data using Mean Squared Error.
+    # Computes the values of beta that gives the best modelfit on data using Mean Squared Error.
 
     # *** Output ***
     # beta_opt [scalar]:    Optimal value of beta
-    # gamma_opt [scalar]:   Optimal value of gamma
 
     simdays = len(data)
     stepsize = 1
@@ -24,21 +23,21 @@ def estimate_beta(
 
     # Specify first search area
     beta = [i / n_points for i in range(n_points + 1)]
-
-
+    bg_opt_index = [0,0]
     # Iterate layers times
     errs = []
     beta_opt = 0
     for k in range(layers):
         min_err = -1
-        bg_opt_index = [0, 0]
         errs = []
         for i in beta:
                 mp = [i,gamma, N]
                 t, SIR = b_ivp.simulateSIR(X_0, mp, simdays, stepsize, b_ivp.RK4)
                 data_est = [SIR[int(i / stepsize)] for i in range(simdays)]
-                data_est = np.asarray(data_est)
-                err = (np.linalg.norm(data[:,1]-data_est[:,1]))**2
+                data_est = np.array(data_est)
+                print(data_est)
+                print(data)
+                err = (np.linalg.norm(data-data_est))**2
                 if err < min_err or min_err == -1:
                     bg_opt_index = [i]
                     min_err = err

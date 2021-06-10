@@ -1,5 +1,6 @@
 import math
-
+import param_est_only_beta as pestbeta
+from tqdm import tqdm
 
 def derivative(
         X: list,  # Vector to compute derivative of
@@ -144,3 +145,47 @@ def simulateSIR(
         SIR.append(method(SIR[i], mp, stepsize))
 
     return t, SIR
+
+def simulateSIR_betafun(
+        X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
+        X: list,   # Nested numpy array of [S, I, R] for each simulated day
+        gamma: int,  # Model parameter gamma
+        N: int,      # Population size
+        simtime: int = 100,  # How many timeunits into the future that should be simulated
+        stepsize: float = 0.1,  # t_kp1 - t_k
+        method=ExplicitEuler  # Numerical method to be used [function]
+):
+    # *** Description ***
+    # Simulate modified SIR-model, with beta as a continuous
+    # function instead of a constant
+
+    # *** Output ***
+    # t [list]:             All points in time simulated
+    # SIR [nested list]:    Values of SIR at all points in time t
+    # betas [list]:         Values of beta in all points in time t
+
+    SIR = [X_0]
+    betas = []
+    beta_time = 7 #half the amount of days needed to compute one beta value
+    
+    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
+
+    for i in tqdm(range(int(simtime / stepsize))):
+        if i < int(beta_time / stepsize):
+            test_data = X[0:i,:]
+        elif i > int((simtime - beta_time)/stepsize):
+            test_data = X[i:-1,:]
+        else:
+            test_data = X[i-beta_time:i+beta_time,:]
+            
+        beta, errs = pestbeta.estimate_beta(
+            X_0=X_0,
+            data=test_data,
+            gamma = gamma,
+            n_points=10,
+            layers=5)
+        
+        betas.append(beta)
+        SIR.append(method(SIR[i], [beta,gamma,N], stepsize))
+
+    return t, SIR, betas

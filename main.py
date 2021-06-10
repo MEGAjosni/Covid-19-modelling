@@ -68,6 +68,7 @@ X_0 = [N - I_0 - R_0, I_0, R_0]
 
 #%% Optimal beta and predefined gamma
 
+#The following code applies least squares on gamma aswell
 #c1 = time.process_time()
 #beta_opt, gamma_opt, errs = pest.estimate(
 #    X_0=X_0,
@@ -77,8 +78,8 @@ X_0 = [N - I_0 - R_0, I_0, R_0]
 #)
 #c2 = time.process_time()
 
-#optimal parameter beta using frobenius norm and predefined gamma
-# using
+#optimal parameter beta using frobenius norm 
+#and predefined gamma
 gamma_opt = 1/9
 
 c1 = time.process_time()
@@ -151,19 +152,20 @@ plt.show()
 """
 #%% Variying beta
 
-gamma_opt = 1/9
+
+gamma = 1/9
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
-mp = [beta_opt, gamma_opt, N]
+mp = [beta_opt, gamma, N]
 
-t, SIR = b_ivp.simulateSIR(
-    X_0=X_0,
-    mp=mp,
-    simtime=simdays,
-    method=b_ivp.RK4
-)
-
-print("Simulation completed in", c2 - c1, "seconds.")
+t, SIR, betas = b_ivp.simulateSIR_betafun(
+    X_0 = X_0,
+    X = test_data,
+    gamma = gamma,
+    N = N,
+    simtime = 100,
+    stepsize = 1,
+    method = b_ivp.RK4)
 
 # Plot optimal solution
 plt.plot(t, np.asarray(SIR)[:,1])
