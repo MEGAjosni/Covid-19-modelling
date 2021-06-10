@@ -14,62 +14,80 @@ from tqdm import tqdm
 
 
 def estimate_beta(
-    X_0,
-    t1, # Start
-    t2, # Stop
-    data,
-    gamma=1/9,
-    precision=5
+        X_0,
+        t1,  # Start
+        t2,  # Stop
+        data,
+        gamma=1 / 9,
+        precision=1
 ):
-
-    mse_min = math.inf
+    err_min = math.inf
     beta_opt = 0
 
     for k in range(precision):
-        for beta in np.linspace(beta_opt - 1/(10**k), beta_opt + 1/(10**k), 21):
+        for beta in np.linspace(beta_opt - 1 / (10 ** k), beta_opt + 1 / (10 ** k), 21):
             if beta >= 0:
                 _, SIR = b_ivp.simulateSIR(
                     X_0=X_0,
                     mp=[beta, gamma],
                     method=b_ivp.RK4,
-                    simtime=(t2-t1).days
+                    simtime=(t2 - t1).days
                 )
                 sim_data = SIR[:, 1]
-                mse = (np.square(sim_data[0::10] - data[t1:t2].to_numpy())).mean()
+                err = (np.square(sim_data[0::10] - data[t1:t2].to_numpy())).mean()
                 # print(mse)
-                if mse < mse_min:
-                    mse_min = mse
+                if err < err_min:
+                    err_min = err
                     beta_opt = beta
 
     return beta_opt
 
 
+# Specify period and overshoot
 start_day = '2020-12-01'  # start day
 simdays = 100
 overshoot = 7
 
 t0 = pd.to_datetime(start_day)
-simdays = dt.timedelta(days=simdays)
 overshoot = dt.timedelta(days=overshoot)
 
-data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
-data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
-data_total = data_pcr + data_antigen
+data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
+data_inf = data['I']
 
-opt_beta = np.empty(shape=simdays.days, dtype=float)
+# data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
+# data_antigen = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
+# data_total = data_pcr + data_antigen
 
-for i in range(simdays.days):
-    opt_beta[i] = estimate_beta(np.array([5800000, 1000, 0]) , t0-overshoot+dt.timedelta(days=i), t0+overshoot+dt.timedelta(days=i), data_total)
-    # print([t0-overshoot+dt.timedelta(days=i), t0+dt.timedelta(days=i), t0+overshoot+dt.timedelta(days=i)])
+opt_beta = np.empty(shape=simdays, dtype=float)
 
-print(opt_beta)
+for i in tqdm(range(simdays)):
+    opt_beta[i] = estimate_beta(
+        X_0=data.loc[t0 + dt.timedelta(days=i) - overshoot].to_numpy(),
+        t1=t0 - overshoot + dt.timedelta(days=i),
+        t2=t0 + overshoot + dt.timedelta(days=i),
+        data=data_inf
+    )
 
+t = pd.date_range(t0, periods=simdays).strftime('%d/%m-%Y')
 
+fig, ax1 = plt.subplots()
 
+color = 'tab:blue'
+ax1.set_xlabel('Date')
+ax1.set_ylabel(r'$\beta$')
+ax1.plot(t, opt_beta, color=color)
+ax1.tick_params(axis='x', rotation=45)
 
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
+color = 'tab:orange'
+ax2.set_ylabel('Infected')  # we already handled the x-label with ax1
+ax2.plot(t, data_inf[t0:t0+dt.timedelta(days=simdays-1)], color=color)
 
+plt.xticks(ticks=t[0::7], labels=t[0::7])
 
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
+plt.show()
 
 
 #
