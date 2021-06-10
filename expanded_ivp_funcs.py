@@ -6,6 +6,7 @@ Created on Thu Apr 15 13:31:45 2021
 """
 import math
 import numpy as np
+from sys import exit
 
 
 def derivative_expanded(X, mp, t):
@@ -30,27 +31,26 @@ def derivative_expanded(X, mp, t):
     # gamma1 : Rate of recovery for infected
     # gamma2 : Rate of recovery for ICU
     # gamma3 : Rate of recovery for respirator
-    # theta1 : Death rate at ICU
-    # theta2 : Death rate in respirator
-    # phi1 : Rate of ICU from infected
-    # phi2 : Rate of respirator from ICU
+    # theta : Death rate in ICU
+    # phi1 : Rate of hospitalised from infected
+    # phi2 : Rate of ICU from hospitalised
     # N : Population
     # ************* Output *************
     #
     # dX : derivative of state vector X. 
 
     # Extract data
-    beta, gamma1, gamma2, gamma3, theta1, theta2, phi1, phi2, N = mp
+    beta, gamma1, gamma2, gamma3, theta, phi1, phi2, N = mp
     S, I1, I2, I3, R1, R2, R3 = X
 
     dX = np.array([
         -((beta * I1) / N + (t / (S + I1 + R1))) * S,  # dS/dt
         (beta * I1 / N) * S - (gamma1 + phi1 + (t / (S + I1 + R1))) * I1,  # dI1/dt
-        phi1 * I1 - (gamma2 + theta1 + phi2) * I2,  # dI2/dt
-        phi2 * I2 - (gamma3 + theta2) * I3,  # dI3/dt
+        phi1 * I1 - (gamma2 + phi2) * I2,  # dI2/dt
+        phi2 * I2 - (gamma3 + theta) * I3,  # dI3/dt
         gamma1 * I1 + gamma2 * I2 + gamma3 * I3 - (t / (S + I1 + R1)) * R2,  # dR1/dt
         t,  # dR2/dt
-        theta1 * I1 + theta2 * I2,  # dR3/dt
+        theta * I3,  # dR3/dt
     ])
 
     return dX

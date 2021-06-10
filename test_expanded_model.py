@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import expanded_ivp_funcs as e_ivp
 import numpy as np
 import time
+import sys
 
 # Import added vaccine data
 Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv') # 1st observation is january 4th
