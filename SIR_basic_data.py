@@ -15,7 +15,16 @@ import numpy as np
 print(gd.infect_dict['Test_pos_over_time_antigen'])
 
 
-DI =  gd.infect_dict['Test_pos_over_time_antigen']['NewPositive']+gd.infect_dict['Test_pos_over_time']['NewPositive']
+
+DI1 = gd.infect_dict['Test_pos_over_time']['NewPositive'].to_numpy(copy=True)
+DI2 = gd.infect_dict['Test_pos_over_time_antigen']['NewPositive'].to_numpy(copy=True)
+
+#idx = pd.date_range("2020-01-27", freq="D",periods = len(DI1)-len(DI2))
+#trunc = pd.DataFrame([0 for i in range(len(DI1)-len(DI2))],index=idx)
+
+DI2 = np.concatenate((np.zeros(len(DI1)-len(DI2)),DI2))
+DI = DI1 + DI2
+#DI = DI1.to_numpy(copy=True)+DI2.to_numpy(copy=True)
 
 N = 5800000
 S = []
