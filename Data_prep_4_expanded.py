@@ -27,7 +27,7 @@ forecast = True
 mat = scipy.io.loadmat('data/Inter_data.mat') #1st observation march 11 2020
 Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv')# 1st observation jan 4th 2021
 Data_Infected = gd.infect_dict['Test_pos_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
-Data_Dead = gd.infect_dict['Deaths_over_time']#[s1 : s2 + dt.timedelta(days=sim_days)]
+Data_Dead = gd.infect_dict['Deaths_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
 Data_Hospitalized = gd.infect_dict['Newly_admitted_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
 
 
