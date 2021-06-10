@@ -9,6 +9,8 @@ import pandas as pd
 #import tikzplotlib
 import numpy as np
 
+## INITIALISE DATA
+
 print(gd.infect_dict['Test_pos_over_time_antigen'])
 
 # Get data
@@ -64,7 +66,8 @@ test_data = X[days:days+simdays,:]
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
 
-# Find optimal parameters
+#%% Optimal beta and predefined gamma
+
 #c1 = time.process_time()
 #beta_opt, gamma_opt, errs = pest.estimate(
 #    X_0=X_0,
@@ -124,6 +127,7 @@ plt.show()
 # ax.plot_surface(x, y, data.T)
 # ax.set(xlabel=r'$\beta$', ylabel=r'$\gamma$', zlabel='Error')
 # plt.show()
+#%% Accumulated model
 
 """
 t, SV = ivp.simulateSV(
@@ -145,3 +149,30 @@ T = list(range(num_days))
 plt.bar(T, V_data)
 plt.show()
 """
+#%% Variying beta
+
+gamma_opt = 1/9
+
+X_0 = [N - I_0 - R_0, I_0, R_0]
+mp = [beta_opt, gamma_opt, N]
+
+t, SIR = b_ivp.simulateSIR(
+    X_0=X_0,
+    mp=mp,
+    simtime=simdays,
+    method=b_ivp.RK4
+)
+
+print("Simulation completed in", c2 - c1, "seconds.")
+
+# Plot optimal solution
+plt.plot(t, np.asarray(SIR)[:,1])
+plt.title("Simulation using optimal parameters")
+plt.legend(["Susceptible", "Infected", "Removed"])
+plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
+    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
+plt.ylabel("Number of people")
+plt.ylim([0, max(I)+1000])
+T = list(range(simdays))
+plt.bar(T,I[days:days+simdays])
+plt.show()
