@@ -53,7 +53,6 @@ overshoot = dt.timedelta(days=overshoot)
 # Load data
 data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
 data_inf = data['I']
-print(data)
 
 # Search for best values of beta
 opt_beta = np.empty(shape=simdays, dtype=float)
@@ -76,12 +75,14 @@ ax1.set_xlabel('Date')
 ax1.set_ylabel(r'$\beta$')
 ax1.plot(t, opt_beta, color=color)
 ax1.tick_params(axis='x', rotation=45)
+ax1.legend([r'$\beta$'], loc="upper center")
 
 ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
 color = 'tab:orange'
 ax2.set_ylabel('Infected')  # we already handled the x-label with ax1
 ax2.plot(t, data_inf[t0:t0+dt.timedelta(days=simdays-1)], color=color)
+ax2.legend(['Infected'], loc="upper right")
 
 plt.xticks(ticks=t[0::7], labels=t[0::7])
 
