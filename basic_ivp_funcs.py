@@ -1,6 +1,7 @@
 import math
-import param_est_only_beta as pestbeta
 from tqdm import tqdm
+import numpy as np
+
 
 def derivative(
         X: list,  # Vector to compute derivative of
@@ -12,7 +13,8 @@ def derivative(
     # *** Output ***
     # dX [list]:            Derivative of X
 
-    beta, gamma, N = mp
+    beta, gamma = mp
+    N = 5800000
     S, I, R = X
 
     dX = [
@@ -21,35 +23,8 @@ def derivative(
         gamma * I
     ]
 
-    return dX
+    return np.array(dX)
 
-
-def derivativeV(
-        V_0: float, #Number of accumulated infected at time t_0
-        V: float,  # Number to compute derivative of
-        mp: list  # Model parameters [beta, gamma, N]
-            ):
-    beta, gamma, N = mp
-    beta = beta/N
-    v = gamma/beta
-    I = V + v*math.log(N-V)-V_0-v*math.log(N-V_0)
-    S = N-V
-    dV = beta * S * I
-    return dV
-
-
-def RK4V(
-        V_0: float, #Number of accumulated infected at time t_0
-        V: float ,  # Number to compute derivative of
-        mp: list,  # Model parameters [beta, gamma, N]
-        stepsize: float = 0.1  # t_kp1 - t_k
-            ):
-    K_1 = derivativeV(V_0, V, mp)
-    K_2 = derivativeV(V_0, V + 1 / 2 * stepsize * K_1, mp)
-    K_3 = derivativeV(V_0, V + 1/2*stepsize*K_2,mp)
-    K_4 = derivativeV(V_0, V + stepsize*K_3, mp)
-    V_kp1 = V + stepsize / 6 * (K_1 + 2 * (K_2 + K_3) + K_4)
-    return V_kp1
 
 """
 def simulateSV(
@@ -57,7 +32,7 @@ def simulateSV(
         V_0: int,  # Initial values of V_0
 =======
         V_start: float,  # Initial values in simulation of V
->>>>>>> Stashed changes:inivalfunctions.py
+>>>>>>> Stashed changes: inivalfunctions.py
         mp: list,  # Model parameters [beta, gamma, N]
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
@@ -81,9 +56,11 @@ def simulateSV(
     
 >>>>>>> Stashed changes:inivalfunctions.py
 """
+
+
 def ExplicitEuler(
-        X_k: list,  # Values of SIR at time t_k
-        mp: list,  # Model parameters [beta, gamma, N]
+        X_k: np.array,  # Values of SIR at time t_k
+        mp: list,  # Model parameters [beta, gamma]
         stepsize=0.1  # t_kp1 - t_k
 ):
     # *** Description ***
@@ -92,17 +69,16 @@ def ExplicitEuler(
     # *** Output ***
     # X_kp1 [list]:         Values of SIR at time t_kp1
 
-    N = range(len(X_k))
     dX_k = derivative(X_k, mp)
 
-    X_kp1 = [X_k[i] + stepsize * dX_k[i] for i in N]
+    X_kp1 = X_k + stepsize * dX_k
 
     return X_kp1
 
 
 def RK4(
-        X_k: list,  # Values of SIR at time t_k
-        mp: list,  # Model parameters [beta, gamma, N]
+        X_k: np.array,  # Values of SIR at time t_k
+        mp: list,  # Model parameters [beta, gamma]
         stepsize: float = 0.1  # t_kp1 - t_k
 ):
     # *** Description ***
@@ -111,21 +87,19 @@ def RK4(
     # *** Output ***
     # X_kp1 [list]:         Values of SIR at time t_kp1
 
-    N = range(len(X_k))
-
     K_1 = derivative(X_k, mp)
-    K_2 = derivative([X_k[i] + 1 / 2 * stepsize * K_1[i] for i in N], mp)
-    K_3 = derivative([X_k[i] + 1 / 2 * stepsize * K_2[i] for i in N], mp)
-    K_4 = derivative([X_k[i] + stepsize * K_3[i] for i in N], mp)
+    K_2 = derivative(X_k + 1/2 * stepsize * K_1, mp)
+    K_3 = derivative(X_k + 1/2 * stepsize * K_2, mp)
+    K_4 = derivative(X_k + stepsize * K_3, mp)
 
-    X_kp1 = [X_k[i] + stepsize / 6 * (K_1[i] + 2 * (K_2[i] + K_3[i]) + K_4[i]) for i in N]
+    X_kp1 = X_k + stepsize/6 * (K_1 + 2 * (K_2 + K_3) + K_4)
 
     return X_kp1
 
 
 def simulateSIR(
         X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
-        mp: list,  # Model parameters [beta, gamma, N]
+        mp: list,  # Model parameters [beta, gamma]
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
         method=ExplicitEuler  # Numerical method to be used [function]
@@ -139,53 +113,9 @@ def simulateSIR(
 
     SIR = [X_0]
 
-    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
+    t = np.arange(start=0, stop=simtime + 1, step=stepsize)
 
     for i in range(int(simtime / stepsize)):
         SIR.append(method(SIR[i], mp, stepsize))
 
-    return t, SIR
-
-def simulateSIR_betafun(
-        X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
-        X: list,   # Nested numpy array of [S, I, R] for each simulated day
-        gamma: int,  # Model parameter gamma
-        N: int,      # Population size
-        simtime: int = 100,  # How many timeunits into the future that should be simulated
-        stepsize: float = 0.1,  # t_kp1 - t_k
-        method=ExplicitEuler  # Numerical method to be used [function]
-):
-    # *** Description ***
-    # Simulate modified SIR-model, with beta as a continuous
-    # function instead of a constant
-
-    # *** Output ***
-    # t [list]:             All points in time simulated
-    # SIR [nested list]:    Values of SIR at all points in time t
-    # betas [list]:         Values of beta in all points in time t
-
-    SIR = [X_0]
-    betas = []
-    beta_time = 7 #half the amount of days needed to compute one beta value
-    
-    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
-
-    for i in tqdm(range(int(simtime / stepsize))):
-        if i < int(beta_time / stepsize):
-            test_data = X[0:i,:]
-        elif i > int((simtime - beta_time)/stepsize):
-            test_data = X[i:-1,:]
-        else:
-            test_data = X[i-beta_time:i+beta_time,:]
-            
-        beta, errs = pestbeta.estimate_beta(
-            X_0=X_0,
-            data=test_data,
-            gamma = gamma,
-            n_points=10,
-            layers=5)
-        
-        betas.append(beta)
-        SIR.append(method(SIR[i], [beta,gamma,N], stepsize))
-
-    return t, SIR, betas
+    return t, np.array(SIR)

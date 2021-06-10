@@ -44,7 +44,7 @@ for i in range(days+simdays):
 
     X.append([S[i],I[i],R[i]])
 
-X = np.asarray(X)
+X = np.array(X)
 #start date
 s = pd.to_datetime('2020-12-01')
 #start of pandemic
@@ -65,6 +65,7 @@ test_data = X[days:days+simdays,:]
 
 
 X_0 = [N - I_0 - R_0, I_0, R_0]
+print(X_0)
 
 #%% Optimal beta and predefined gamma
 
