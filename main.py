@@ -33,7 +33,8 @@ beta_opt, errs = pestbeta.estimate_beta(
     X_0=X_0,
     data=test_data,
     gamma = gamma,
-    layers=5)
+    layers=5,
+    precision = 5)
 
 # Simulate optimal solution
 mp = [beta_opt, gamma]
