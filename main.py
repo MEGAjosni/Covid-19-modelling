@@ -13,30 +13,27 @@ from SIR_basic_data import X
 gamma = 1/9 #predifed gamma
 
 
-#start of pandemic
-s1 = pd.to_datetime('2020-01-27')
 #start of simulation
-s2 = pd.to_datetime('2021-01-05') #+dt.timedelta(days = 0)
+t1 = pd.to_datetime('2021-01-05')
 #number of days to simulate over
 sim_days = 21
-
-#index for initial value
-start_day = (s2-s1).days
-
-test_data = X.to_numpy(copy = True)
-test_data = test_data[start_day:start_day+sim_days,:]
-X_0 = test_data[0,:]
+#end of simulation
+t2 = t1 + dt.timedelta(days = sim_days)
 
 #find optimal beta
 c1 = time.process_time()
 beta_opt, errs = pestbeta.estimate_beta(
-    X_0=X_0,
-    data=test_data,
+    X_0=X.loc[t1],
+    t1 = t1,
+    t2 = t2,
+    real_data=X,
     gamma = gamma,
-    layers=5)
+    precision = 5
+)
 
 # Simulate optimal solution
 mp = [beta_opt, gamma]
+"""
 t, SIR = b_ivp.simulateSIR(
     X_0=X_0,
     mp=mp,
@@ -60,7 +57,7 @@ T = list(range(sim_days))
 plt.bar(T,X[start_day:start_day+sim_days,1])
 plt.show()
 #tikzplotlib.save('test.tex')
-
+"""
 #%% Variying beta
 
 """
