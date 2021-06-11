@@ -41,7 +41,8 @@ def derivative_expanded(X, mp, t):
     # dX : derivative of state vector X. 
 
     # Extract data
-    beta, gamma1, gamma2, gamma3, theta, phi1, phi2, N = mp
+    beta, gamma1, gamma2, gamma3, theta, phi1, phi2 = mp
+    N = 5800000
     S, I1, I2, I3, R1, R2, R3 = X
 
     dX = np.array([

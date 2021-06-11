@@ -49,9 +49,10 @@ def estimate_params_expanded(
         t1,  # Start
         t2,  # Stop
         real_data,
-        mp, # Known model parameters
-        precision=5
+        mp, # Known model parameters [gamma1, gamma2, gamma3, theta]
+        precision=2
 ):
+    beta, gamma1, gamma2, gamma3 = mp
     err_min = math.inf
     best_params = [0, 0, 0]
 
@@ -64,21 +65,40 @@ def estimate_params_expanded(
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
-                    mp=[beta, gamma],
-                    method=b_ivp.RK4,
+                    mp=[params[0], gamma1, gamma2, gamma3, theta, params[1], params[2]],
+                    method=e_ivp.RK4,
                     simtime=(t2 - t1).days
                 )
                 sim_data = SIR[:, 1]
                 err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
-                    best_beta = beta
+                    best_params = params
 
     return best_beta
 
 
-for x in itertools.product([1, 2], [3, 4], [5, 6]):
-    print(x)
+# Specify period and overshoot
+start_day = '2020-12-01'  # start day
+simdays = 100
+overshoot = 7
+
+t0 = pd.to_datetime(start_day)
+overshoot = dt.timedelta(days=overshoot)
+
+# Load data
+data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
+
+# Search for best values of beta
+estimate_params_expanded(
+    X_0=data.loc[t0].to_numpy(copy=True),
+    t1=t0,
+    t2=t0+dt.timedelta(days=14),
+    real_data=data,
+    mp=mp,
+    precision=2
+)
+
 
 
 
