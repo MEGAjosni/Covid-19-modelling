@@ -114,7 +114,7 @@ def simulateSIR(
 
     SIR = [X_0]
 
-    t = np.arange(start=0, stop=simtime + 1, step=stepsize)
+    t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
 
     for i in range(int(simtime / stepsize)):
         SIR.append(method(SIR[i], mp, stepsize))
