@@ -5,6 +5,7 @@ Created on Wed Jun  9 09:33:45 2021
 @author: alboa
 """
 import scipy.io
+import os
 import get_data as gd
 import matplotlib.pyplot as plt
 import time
@@ -14,6 +15,7 @@ import numpy as np
 from tqdm import tqdm
 
 def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
+    
     # ***** Description *****
 #
 #   Constructs time indexed dataframe of the 7 variables of the expanded SIR 
@@ -34,12 +36,15 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
     #Load data
     s1 = pd.to_datetime('2020-01-27')  # start of data
     
+    data_dir = os.getcwd() + '\\data\\vaccinationsdata-dashboard-covid19-10062021-fii5\\Vaccine_DB\\'
+    
+    
     mat = scipy.io.loadmat('data/Inter_data.mat') #1st observation march 11 2020
     Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv')# 1st observation jan 4th 2021
     Data_Infected = gd.infect_dict['Test_pos_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
     Data_Dead = gd.infect_dict['Deaths_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
     Data_Hospitalized = gd.infect_dict['Newly_admitted_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
-    Data_Vaccinated = gd.vaccine_dict['FaerdigVacc_daekning_DK_prdag'][s1 : s2 + dt.timedelta(days=sim_days)]
+    Data_Vaccinated = pd.read_csv(data_dir+'FaerdigVacc_daekning_DK_prdag.csv')[s1 : s2 + dt.timedelta(days=sim_days)]
     
     # Offsets:
     ICU_RESP_Offset = np.zeros(int((pd.to_datetime('2020-03-11') - s1).days))
@@ -69,6 +74,7 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
     
     # Some variables need transformation/calculation
     for i in tqdm(range((s2 - s1).days + sim_days)):
+        print(i)
         if i < int(Gamma1 ** (-1)):
             I1.append(sum(Data_Infected['NewPositive'][0:i]))
         else : 

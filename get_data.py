@@ -117,7 +117,7 @@ os.remove(data_dir + 'covid19-vaccinationsdata-29032021-lb1f.zip')
 # Since these files are inside a folder they must be moved to the correct folder
 for filename in os.listdir(data_dir + 'Vaccine_DB\\'):
     shutil.move(os.path.join(data_dir + 'Vaccine_DB\\', filename), os.path.join(data_dir, filename))
-
+'''
 vaccine_dict: dict = {}
 
 for f in os.listdir(data_dir):
@@ -168,3 +168,4 @@ for f in os.listdir(data_dir):
         vaccine_dict[f[0:-4]] = x
 
 shutil.rmtree(data_dir + 'Vaccine_DB')
+'''
