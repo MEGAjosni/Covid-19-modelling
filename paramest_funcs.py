@@ -43,7 +43,7 @@ def estimate_beta_simple(
 
     return best_beta
 
-
+"""
 def estimate_params_expanded(
         X_0,
         t1,  # Start
@@ -81,7 +81,7 @@ for x in itertools.product([1, 2], [3, 4], [5, 6]):
     print(x)
 
 
-
+"""
 #
 # # Specify period and overshoot
 # start_day = '2020-12-01'  # start day
