@@ -14,9 +14,9 @@ gamma = 1/9 #predifed gamma
 
 
 #start of simulation
-t1 = pd.to_datetime('2021-01-05')
+t1 = pd.to_datetime('2020-11-20')
 #number of days to simulate over
-sim_days = 21
+sim_days = 15
 #end of simulation
 t2 = t1 + dt.timedelta(days = sim_days)
 
@@ -44,17 +44,30 @@ t, SIR = b_ivp.simulateSIR(
 c2 = time.process_time()
 
 print("Simulation completed in", c2 - c1, "seconds.")
-
+t = pd.date_range(t1, periods=sim_days+1).strftime('%d/%m-%Y')
+alpha = 0.5
 # Plot optimal solution
-plt.plot(t[0:-1-8], np.array(SIR)[:,1])
+fig,ax = plt.subplots()
+ax2=ax.twinx()
+#plot simulations
+ax.plot(t, np.array(SIR)[0::10,0], c ="g",label = "S est.")
+ax2.plot(t, np.array(SIR)[0::10,1], c = "tab:orange", label = "I est.")
+ax2.plot(t, np.array(SIR)[0::10,2], c = "b", label = "R est.")
 plt.title("Simulation using optimal parameters")
-plt.legend(["Susceptible", "Infected", "Removed"])
-plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
+ax.set_xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
     beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma))
-plt.ylabel("Number of people")
-#plt.ylim([0, max(X[:,1])+1000])
-#T = list(range(sim_days))
-#plt.bar(T,X['I'][t1:t2])
+ax.set_ylabel("Number of susceptible people ")
+ax2.set_ylabel("Number of infected or recovered people")
+T = list(range(sim_days+1))
+
+#Data points
+ax.scatter(T, X['S'][t1:t2], c = "g", alpha = alpha, label = "S")
+ax2.scatter(T, X['I'][t1:t2], c = "tab:orange", alpha = alpha, label = "I")
+ax2.scatter(T, X['R'][t1:t2], c = "b",alpha = alpha, label = "R")
+
+ax.tick_params(axis='x', rotation=45)
+ax.legend(loc = "center left")
+ax2.legend(loc = "center right")
 plt.show()
 #tikzplotlib.save('test.tex')
 
