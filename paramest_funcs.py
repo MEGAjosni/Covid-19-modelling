@@ -43,7 +43,7 @@ def estimate_beta_simple(
 
     return best_beta
 
-
+"""
 def estimate_params_expanded(
         X_0,
         t1,  # Start
@@ -101,7 +101,7 @@ estimate_params_expanded(
 
 
 
-
+"""
 #
 # # Specify period and overshoot
 # start_day = '2020-12-01'  # start day
