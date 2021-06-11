@@ -123,7 +123,7 @@ def simulateSIR(
     for i in range(int(simtime / stepsize)):
         SIR.append(method(SIR[i], mp, T[i], stepsize))
 
-    return t, SIR
+    return t, np.array(SIR)
 
 
 def simulateSIR_PID(
