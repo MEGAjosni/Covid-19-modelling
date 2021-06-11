@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import expanded_ivp_funcs as e_ivp
 import numpy as np
 import time
+import sys
 
 # Import added vaccine data
 Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv') # 1st observation is january 4th
@@ -16,8 +17,8 @@ simdays = 100
 # X : State vector
 # S : susceptible at risk
 # I1 : regular infected
-# I2 : ICU infected
-# I3 : respirator infected
+# I2 : Hospitalised
+# I3 : In ICU
 # R1 : regular recovered
 # R2 : vaccinated
 # R3 : dead
@@ -45,7 +46,6 @@ mp = [0.22,
       (1 / 7),
       (1 / 20),
       (1 / 20),
-      0.2 * (1 / 20),
       0.2 * (1 / 20),
       0.001,
       0.5,
@@ -112,7 +112,7 @@ plt.title(" infected and dead ")
 plt.legend(["I1", "I2", "I3", "R3"])
 
 plt.ylabel("Number of people")
-plt.ylim([0, 6 * 10 ** 5])
+plt.ylim([0, 1*10**6])
 plt.show()
 
 plt.plot(t,I2,I3)
