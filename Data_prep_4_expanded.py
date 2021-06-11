@@ -104,7 +104,6 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
     
     # Some variables need transformation/calculation
     for i in tqdm(range((s2 - s1).days + sim_days)):
-        print(i)
         if i < int(Gamma1 ** (-1)):
             I1.append(sum(Data_Infected['NewPositive'][0:i]))
         else : 
