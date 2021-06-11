@@ -53,7 +53,7 @@ def estimate_params_expanded(
         mp, # Known model parameters [gamma1, gamma2, gamma3, theta]
         precision=2
 ):
-    beta, gamma1, gamma2, gamma3 = mp
+    gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
     best_params = [0, 0, 0]
 
