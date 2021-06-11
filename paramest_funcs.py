@@ -56,13 +56,13 @@ def estimate_params_expanded(
     best_params = [0, 0, 0]
 
     for k in range(precision):
-        np.linspace(best_params[0] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
-        np.linspace(best_params[1] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
-        np.linspace(best_params[2] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
-        
-        for beta in :
-            if beta >= 0:
-                _, SIR = b_ivp.simulateSIR(
+        beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
+        phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
+        phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
+
+        for params in itertools.product(beta_vals, phi1_vals, phi2_vals):
+            if all(i >= 0 for i in params):
+                _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
                     mp=[beta, gamma],
                     method=b_ivp.RK4,
