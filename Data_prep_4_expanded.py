@@ -25,7 +25,7 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
 #       Gamma1 : fracton, rate of recovery from infection
 #       Gamma2 : fraction, rate of recovery from hospitalization
 #       s2: date, Start of simulation
-#       Sim_days : int, number of days of simulation
+#       sim_days : int, number of days of simulation
 #       forecast : boolean,
 #   Output : 
 #       X : dataframe, Containing [S,I1,I2,I3,R1,R2,R3], indexed by date. 

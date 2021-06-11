@@ -51,7 +51,7 @@ def estimate_params_expanded(
         t2,  # Stop
         real_data,
         mp, # Known model parameters [gamma1, gamma2, gamma3, theta]
-        precision=2
+        precision=10
 ):
     gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
@@ -65,13 +65,14 @@ def estimate_params_expanded(
         for params in itertools.product(beta_vals, phi1_vals, phi2_vals):
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
+                    T = np.zeros((t2-t1).days),
                     X_0=X_0,
                     mp=[params[0], gamma1, gamma2, gamma3, theta, params[1], params[2]],
                     method=e_ivp.RK4,
                     simtime=(t2 - t1).days
                 )
-                sim_data = SIR[:, 1]
-                err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
+                sim_data = SIR[1, :]
+                err = (np.square(sim_data[0::10] - real_data['I1'][t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
                     best_params = params
@@ -99,7 +100,7 @@ data = dp4e.Create_dataframe(
 mp = [1/9, 1/14, 1/20, 1/30]
 
 # Search for best values of beta
-estimate_params_expanded(
+params = estimate_params_expanded(
     X_0=data.loc[t0].to_numpy(copy=True),
     t1=t0,
     t2=t0+dt.timedelta(days=21),
@@ -108,7 +109,7 @@ estimate_params_expanded(
     precision=2
 )
 
-
+print(params)
 
 
 #
