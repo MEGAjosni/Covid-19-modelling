@@ -1,5 +1,6 @@
 # >>> Scripts <<<
 import basic_ivp_funcs as b_ivp
+import expanded_ivp_funcs as e_ivp
 import get_data as gd
 
 # >>> Packages <<<
@@ -11,9 +12,10 @@ import matplotlib.pyplot as plt
 import os
 import math
 from tqdm import tqdm
+import itertools
 
 
-def estimate_beta(
+def estimate_beta_simple(
         X_0,
         t1,  # Start
         t2,  # Stop
@@ -34,6 +36,39 @@ def estimate_beta(
                     simtime=(t2 - t1).days
                 )
                 sim_data = SIR[:, 1]
+                err = (np.square(sim_data[0::10] - real_data['I'][t1:t2].to_numpy())).mean()
+                if err < err_min:
+                    err_min = err
+                    best_beta = beta
+
+    return best_beta
+
+
+def estimate_params_expanded(
+        X_0,
+        t1,  # Start
+        t2,  # Stop
+        real_data,
+        mp, # Known model parameters
+        precision=5
+):
+    err_min = math.inf
+    best_params = [0, 0, 0]
+
+    for k in range(precision):
+        np.linspace(best_params[0] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
+        np.linspace(best_params[1] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
+        np.linspace(best_params[2] - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21)
+        
+        for beta in :
+            if beta >= 0:
+                _, SIR = b_ivp.simulateSIR(
+                    X_0=X_0,
+                    mp=[beta, gamma],
+                    method=b_ivp.RK4,
+                    simtime=(t2 - t1).days
+                )
+                sim_data = SIR[:, 1]
                 err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
@@ -42,52 +77,57 @@ def estimate_beta(
     return best_beta
 
 
-# Specify period and overshoot
-start_day = '2020-12-01'  # start day
-simdays = 100
-overshoot = 7
+for x in itertools.product([1, 2], [3, 4], [5, 6]):
+    print(x)
 
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
 
-# Load data
-data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
-data_inf = data['I']
 
-# Search for best values of beta
-opt_beta = np.empty(shape=simdays, dtype=float)
-
-for i in tqdm(range(simdays)):
-    opt_beta[i] = estimate_beta(
-        X_0=data.loc[t0 + dt.timedelta(days=i) - overshoot].to_numpy(copy=True),
-        t1=t0 - overshoot + dt.timedelta(days=i),
-        t2=t0 + overshoot + dt.timedelta(days=i),
-        real_data=data_inf
-    )
-
-# Make plot of results
-t = pd.date_range(t0, periods=simdays).strftime('%d/%m-%Y')
-
-fig, ax1 = plt.subplots()
-
-color = 'tab:blue'
-ax1.set_xlabel('Date')
-ax1.set_ylabel(r'$\beta$')
-ax1.plot(t, opt_beta, color=color)
-ax1.tick_params(axis='x', rotation=45)
-ax1.legend([r'$\beta$'], loc="upper center")
-
-ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-
-color = 'tab:orange'
-ax2.set_ylabel('Infected')  # we already handled the x-label with ax1
-ax2.plot(t, data_inf[t0:t0+dt.timedelta(days=simdays-1)], color=color)
-ax2.legend(['Infected'], loc="upper right")
-
-plt.xticks(ticks=t[0::7], labels=t[0::7])
-
-fig.tight_layout()  # otherwise the right y-label is slightly clipped
-plt.show()
+#
+# # Specify period and overshoot
+# start_day = '2020-12-01'  # start day
+# simdays = 100
+# overshoot = 7
+#
+# t0 = pd.to_datetime(start_day)
+# overshoot = dt.timedelta(days=overshoot)
+#
+# # Load data
+# data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
+#
+# # Search for best values of beta
+# opt_beta = np.empty(shape=simdays, dtype=float)
+#
+# for i in tqdm(range(simdays)):
+#     opt_beta[i] = estimate_beta_simple(
+#         X_0=data.loc[t0 + dt.timedelta(days=i) - overshoot].to_numpy(copy=True),
+#         t1=t0 - overshoot + dt.timedelta(days=i),
+#         t2=t0 + overshoot + dt.timedelta(days=i),
+#         real_data=data
+#     )
+#
+# # Make plot of results
+# t = pd.date_range(t0, periods=simdays).strftime('%d/%m-%Y')
+#
+# fig, ax1 = plt.subplots()
+#
+# color = 'tab:blue'
+# ax1.set_xlabel('Date')
+# ax1.set_ylabel(r'$\beta$')
+# ax1.plot(t, opt_beta, color=color)
+# ax1.tick_params(axis='x', rotation=45)
+# ax1.legend([r'$\beta$'], loc="upper center")
+#
+# ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+#
+# color = 'tab:orange'
+# ax2.set_ylabel('Infected')  # we already handled the x-label with ax1
+# ax2.plot(t, data['I'][t0:t0+dt.timedelta(days=simdays-1)], color=color)
+# ax2.legend(['Infected'], loc="upper right")
+#
+# plt.xticks(ticks=t[0::7], labels=t[0::7])
+#
+# fig.tight_layout()  # otherwise the right y-label is slightly clipped
+# plt.show()
 
 
 # data_pcr = gd.infect_dict['Test_pos_over_time']['NewPositive'][t0 - overshoot:t0 + simdays + overshoot]
