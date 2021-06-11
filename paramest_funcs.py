@@ -2,6 +2,7 @@
 import basic_ivp_funcs as b_ivp
 import expanded_ivp_funcs as e_ivp
 import get_data as gd
+import Data_prep_4_expanded as dp4e
 
 # >>> Packages <<<
 import numpy as np
@@ -43,7 +44,7 @@ def estimate_beta_simple(
 
     return best_beta
 
-"""
+
 def estimate_params_expanded(
         X_0,
         t1,  # Start
@@ -75,7 +76,7 @@ def estimate_params_expanded(
                     err_min = err
                     best_params = params
 
-    return best_beta
+    return best_params
 
 
 # Specify period and overshoot
@@ -87,13 +88,21 @@ t0 = pd.to_datetime(start_day)
 overshoot = dt.timedelta(days=overshoot)
 
 # Load data
-data = pd.read_csv('data/X_basic.csv', index_col=0, parse_dates=True)
+data = dp4e.Create_dataframe(
+    Gamma1=1/9,
+    Gamma2=1/14,
+    s2=t0,
+    sim_days=100,
+    forecast=False
+)
+
+mp = [1/9, 1/14, 1/20, 1/30]
 
 # Search for best values of beta
 estimate_params_expanded(
     X_0=data.loc[t0].to_numpy(copy=True),
     t1=t0,
-    t2=t0+dt.timedelta(days=14),
+    t2=t0+dt.timedelta(days=21),
     real_data=data,
     mp=mp,
     precision=2
@@ -101,7 +110,7 @@ estimate_params_expanded(
 
 
 
-"""
+
 #
 # # Specify period and overshoot
 # start_day = '2020-12-01'  # start day
