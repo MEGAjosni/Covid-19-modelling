@@ -36,7 +36,7 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
     #Load data
     s1 = pd.to_datetime('2020-01-27')  # start of data
     
-    data_dir = os.getcwd() + '\\data\\vaccinationsdata-dashboard-covid19-10062021-fii5\\Vaccine_DB\\'
+    data_dir = os.getcwd() + '\\data\\vaccinationsdata-dashboard-covid19-10062021-fii5\\Vaccine_DB\\FaerdigVacc_daekning_DK_prdag.csv'
     
     
     mat = scipy.io.loadmat('data/Inter_data.mat') #1st observation march 11 2020
@@ -44,7 +44,37 @@ def Create_dataframe(Gamma1,Gamma2,s2,sim_days,forecast):
     Data_Infected = gd.infect_dict['Test_pos_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
     Data_Dead = gd.infect_dict['Deaths_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
     Data_Hospitalized = gd.infect_dict['Newly_admitted_over_time'][s1 : s2 + dt.timedelta(days=sim_days)]
-    Data_Vaccinated = pd.read_csv(data_dir+'FaerdigVacc_daekning_DK_prdag.csv')[s1 : s2 + dt.timedelta(days=sim_days)]
+    # manual "get_data" for updated vaccination data
+    Data_Vaccinated =  pd.read_csv(filepath_or_buffer=data_dir,sep=',',thousands='.',decimal=',',engine='python') #[s1 : s2 + dt.timedelta(days=sim_days)]
+    date_name = Data_Vaccinated.columns[0]
+
+    # If data is dateindexed convert to datetime64[ns]
+
+    format1 = sum([str(Data_Vaccinated[date_name][0])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
+   
+
+    
+
+        # Remove totals from bottom
+    j = len(Data_Vaccinated[date_name]) - 1
+    while True:
+        if len(str(Data_Vaccinated[date_name][j])) == 10:
+
+            format1 = sum([str(Data_Vaccinated[date_name][j])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
+            
+
+            if format1:
+                break
+        else:
+            Data_Vaccinated = Data_Vaccinated.drop(index=[j])
+        j += -1
+
+    Data_Vaccinated[date_name] = pd.to_datetime(Data_Vaccinated[date_name], dayfirst=True)
+    Data_Vaccinated = Data_Vaccinated.set_index(pd.DatetimeIndex(Data_Vaccinated[date_name]))
+
+    # As list is now indexed with dates, get rid of the datecolumn
+    Data_Vaccinated = Data_Vaccinated.drop(columns=[date_name])
+
     
     # Offsets:
     ICU_RESP_Offset = np.zeros(int((pd.to_datetime('2020-03-11') - s1).days))
