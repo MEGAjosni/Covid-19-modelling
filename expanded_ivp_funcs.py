@@ -106,7 +106,7 @@ def simulateSIR(
         mp: list,  # Model parameters [beta, gamma, N]
         T: np.array,  # Total added vaccinations
         simtime: int = 100,  # How many timeunits into the future that should be simulated
-        stepsize: float = 1,  # t_kp1 - t_k
+        stepsize: float = 0.1,  # t_kp1 - t_k
         method=RK4  # Numerical method to be used [function]
 ):
     # *** Description ***

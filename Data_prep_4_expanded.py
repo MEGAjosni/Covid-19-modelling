@@ -121,7 +121,7 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
     R3 = list(DEAD_Offset)
 
     # Some variables need transformation/calculation
-    for i in tqdm(range((s2 - s1).days + sim_days)):
+    for i in range((s2 - s1).days + sim_days):
         if i < int(Gamma1 ** (-1)):
             I1.append(sum(Data_Infected['NewPositive'][0:i]))
         else:
