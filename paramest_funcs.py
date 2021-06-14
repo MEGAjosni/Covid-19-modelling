@@ -98,11 +98,11 @@ data = dp4e.Create_dataframe(
 
 mp = [1/9, 1/14, 1/20, 1/30]
 
-# Search for best values of beta
+# Search for best values of beta, phi1 and phi2
 estimate_params_expanded(
     X_0=data.loc[t0].to_numpy(copy=True),
-    t1=t0,
-    t2=t0+dt.timedelta(days=21),
+    t1=t0 - dt.timedelta(days=overshoot),
+    t2=t0 + dt.timedelta(days=overshoot),
     real_data=data,
     mp=mp,
     precision=2
