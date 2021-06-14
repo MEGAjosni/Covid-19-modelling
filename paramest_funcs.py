@@ -50,7 +50,7 @@ def estimate_params_expanded(
         t1,  # Start
         t2,  # Stop
         real_data,
-        mp, # Known model parameters [gamma1, gamma2, gamma3, theta]
+        mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
         precision=2
 ):
     gamma1, gamma2, gamma3, theta = mp
@@ -62,15 +62,17 @@ def estimate_params_expanded(
         phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
         phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-        for params in itertools.product(beta_vals, phi1_vals, phi2_vals):
+        for k in tqdm(itertools.product(beta_vals, phi1_vals, phi2_vals)):
+            params = list(k)
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
                     mp=[params[0], gamma1, gamma2, gamma3, theta, params[1], params[2]],
                     method=e_ivp.RK4,
+                    T=np.zeros((t2 - t1).days + 1),
                     simtime=(t2 - t1).days
                 )
-                sim_data = SIR[:, 1]
+                sim_data = SIR[1, :]
                 err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
@@ -99,14 +101,16 @@ data = dp4e.Create_dataframe(
 mp = [1/9, 1/14, 1/20, 1/30]
 
 # Search for best values of beta, phi1 and phi2
-estimate_params_expanded(
-    X_0=data.loc[t0].to_numpy(copy=True),
-    t1=t0 - dt.timedelta(days=overshoot),
-    t2=t0 + dt.timedelta(days=overshoot),
+opt_params = estimate_params_expanded(
+    X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+    t1=t0 - overshoot,
+    t2=t0 + overshoot,
     real_data=data,
     mp=mp,
-    precision=2
+    precision=5
 )
+
+print(opt_params)
 
 
 
