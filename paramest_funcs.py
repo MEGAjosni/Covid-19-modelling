@@ -14,6 +14,7 @@ import os
 import math
 from tqdm import tqdm
 import itertools
+from numpy import linalg as LA
 
 
 def estimate_beta_simple(
@@ -36,8 +37,11 @@ def estimate_beta_simple(
                     method=b_ivp.RK4,
                     simtime=(t2 - t1).days
                 )
-                sim_data = SIR[:, 1]
-                err = (np.square(sim_data[0::10] - real_data['I'][t1:t2].to_numpy())).mean()
+                S_rel_err = LA.norm(SIR[0::10,0]-real_data["S"][t1:t2])**2/LA.norm(real_data["S"][t1:t2])
+                I_rel_err = LA.norm(SIR[0::10,1]-real_data["I"][t1:t2])**2/LA.norm(real_data["I"][t1:t2])
+                R_rel_err = LA.norm(SIR[0::10,2]-real_data["R"][t1:t2])**2/LA.norm(real_data["R"][t1:t2])
+                err = S_rel_err + I_rel_err + R_rel_err
+                #err = (np.square(sim_data[0::10] - real_data['I'][t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
                     best_beta = beta
@@ -80,7 +84,7 @@ def estimate_params_expanded(
 
     return best_params
 
-
+"""
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
 simdays = 100
@@ -114,7 +118,7 @@ print(opt_params)
 
 
 
-
+"""
 #
 # # Specify period and overshoot
 # start_day = '2020-12-01'  # start day
