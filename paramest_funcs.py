@@ -14,6 +14,7 @@ import os
 import math
 from tqdm import tqdm
 import itertools
+from numpy import linalg as LA
 
 
 def estimate_beta_simple(
@@ -36,8 +37,11 @@ def estimate_beta_simple(
                     method=b_ivp.RK4,
                     simtime=(t2 - t1).days
                 )
-                sim_data = SIR[:, 1]
-                err = (np.square(sim_data[0::10] - real_data['I'][t1:t2].to_numpy())).mean()
+                S_rel_err = LA.norm(SIR[0::10,0]-real_data["S"][t1:t2])**2/LA.norm(real_data["S"][t1:t2])
+                #I_rel_err = LA.norm(SIR[0::10,1]-real_data["I"][t1:t2])**2/LA.norm(real_data["I"][t1:t2])
+                #R_rel_err = LA.norm(SIR[0::10,2]-real_data["R"][t1:t2])**2/LA.norm(real_data["R"][t1:t2])
+                err = S_rel_err #+ I_rel_err + R_rel_err
+                #err = (np.square(sim_data[0::10] - real_data['I'][t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
                     best_beta = beta
@@ -50,8 +54,8 @@ def estimate_params_expanded(
         t1,  # Start
         t2,  # Stop
         real_data,
-        mp, # Known model parameters [gamma1, gamma2, gamma3, theta]
-        precision=10
+        mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        precision=2
 ):
     gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
@@ -62,24 +66,25 @@ def estimate_params_expanded(
         phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
         phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-        for params in itertools.product(beta_vals, phi1_vals, phi2_vals):
+        for k in tqdm(itertools.product(beta_vals, phi1_vals, phi2_vals)):
+            params = list(k)
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
-                    T = np.zeros((t2-t1).days),
                     X_0=X_0,
                     mp=[params[0], gamma1, gamma2, gamma3, theta, params[1], params[2]],
                     method=e_ivp.RK4,
+                    T=np.zeros((t2 - t1).days + 1),
                     simtime=(t2 - t1).days
                 )
                 sim_data = SIR[1, :]
-                err = (np.square(sim_data[0::10] - real_data['I1'][t1:t2].to_numpy())).mean()
+                err = (np.square(sim_data[0::10] - real_data[t1:t2].to_numpy())).mean()
                 if err < err_min:
                     err_min = err
                     best_params = params
 
     return best_params
 
-
+"""
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
 simdays = 100
@@ -99,19 +104,21 @@ data = dp4e.Create_dataframe(
 
 mp = [1/9, 1/14, 1/20, 1/30]
 
-# Search for best values of beta
-params = estimate_params_expanded(
-    X_0=data.loc[t0].to_numpy(copy=True),
-    t1=t0,
-    t2=t0+dt.timedelta(days=21),
+# Search for best values of beta, phi1 and phi2
+opt_params = estimate_params_expanded(
+    X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+    t1=t0 - overshoot,
+    t2=t0 + overshoot,
     real_data=data,
     mp=mp,
-    precision=2
+    precision=5
 )
 
-print(params)
+print(opt_params)
 
 
+
+"""
 #
 # # Specify period and overshoot
 # start_day = '2020-12-01'  # start day
