@@ -14,9 +14,9 @@ gamma = 1/9 #predifed gamma
 
 
 #start of simulation
-t1 = pd.to_datetime('2020-11-20')
+t1 = pd.to_datetime('2020-12-01')
 #number of days to simulate over
-sim_days = 15
+sim_days = 21
 #end of simulation
 t2 = t1 + dt.timedelta(days = sim_days)
 
