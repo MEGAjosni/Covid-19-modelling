@@ -122,10 +122,7 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
 
     # Some variables need transformation/calculation
     for i in range((s2 - s1).days + sim_days):
-        if i < int(Gamma1 ** (-1)):
-            I1.append(sum(Data_Infected['NewPositive'][0:i]))
-        else:
-            I1.append(sum(Data_Infected['NewPositive'][i - int(Gamma1 ** (-1)):i]))
+        
         # create R3
         if i > len(DEAD_Offset) - 1:
             key = Data_Dead.keys()[0]
@@ -134,7 +131,11 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
         # create I2
         if i > len(HOSPITAL_Offset) - 1:
             I2.append(sum(Data_Hospitalized['Total'][i - int(Gamma2 ** (-1)):i]))
-
+        # create I1
+        if i < int(Gamma1 ** (-1)):
+            I1.append(sum(Data_Infected['NewPositive'][0:i]))
+        else:
+            I1.append(sum(Data_Infected['NewPositive'][i - int(Gamma1 ** (-1)):i])-I2[i])
         # create S # first let S be equal to N, then subsequently let S be equal to s_-1 plus
         if i != 0:
             # First determine how big S is out of vaccinatable population.
