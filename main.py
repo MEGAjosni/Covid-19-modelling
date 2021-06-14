@@ -1,5 +1,5 @@
 import basic_ivp_funcs as b_ivp
-import estimate_beta as pestbeta
+import paramest_funcs as pestbeta
 import get_data as gd
 import matplotlib.pyplot as plt
 import time
