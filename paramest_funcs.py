@@ -53,7 +53,7 @@ def estimate_beta_simple(
     return round(best_beta, precision)
 
 
-def params_over_time_simple(
+def beta_over_time_simple(
         t1,
         t2,
         overshoot,
