@@ -100,8 +100,9 @@ def estimate_params_expanded(
         phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
         phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-        for comb in itertools.product(beta_vals, phi1_vals, phi2_vals):
-            params = list(comb)
+        for k in tqdm(itertools.product(beta_vals, phi1_vals, phi2_vals)):
+            params = list(k
+                          )
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
@@ -177,7 +178,7 @@ data = dp4e.Create_dataframe(
     forecast=False
 )
 
-mp = [1 / 9, 1 / 14, 1 / 16, 1 / 15]
+mp = [1/9, 1/7, 1/16, 1/30]
 
 # Search for best values of beta, phi1 and phi2
 opt_params = params_over_time_expanded(
