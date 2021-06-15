@@ -6,7 +6,7 @@ Created on Thu Apr 15 13:31:45 2021
 """
 import math
 import numpy as np
-from sys import exit
+
 
 
 def derivative_expanded(X, mp, t):
@@ -131,8 +131,8 @@ def simulateSIR(
 
 def simulateSIR_PID(
         X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
-        mp: list,
-        beta_initial,# Model parameters [beta, gamma, N]
+        mp: list, # Model parameters [beta, gamma, N]
+        beta_initial: float, 
         T: list,  # Total added vaccinations
         K: list,  # parameters for penalty function
         simtime,  # How many timeunits into the future that should be simulated
@@ -157,7 +157,7 @@ def simulateSIR_PID(
                 new_beta, e_prev, e_total = PID_cont(SIR[j-1],[beta_vals[j-1]]+mp, e_total, error_vals[j-1], K)
             error_vals.append(e_prev)
             beta_vals.append(new_beta)
-        SIR.append(method(SIR[i], [beta_vals[int(np.floor(3/70))]]+mp, T[i], stepsize))
+        SIR.append(method(SIR[i], [beta_vals[int(np.floor(i/70))]]+mp, T[i], stepsize))
 
     return t, SIR, beta_vals, error_vals
 
