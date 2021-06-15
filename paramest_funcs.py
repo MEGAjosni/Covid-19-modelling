@@ -61,7 +61,7 @@ def estimate_params_expanded(
     gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
     best_params = [0, 0, 0]
-
+    errs = []
     # Normalize data
     real_data = np.transpose(data[t1:t2].to_numpy())
     norm_real_data = np.nan_to_num((real_data - real_data.mean(axis=1, keepdims=True)) / real_data.std(axis=1, keepdims=True), nan=0)
@@ -88,11 +88,12 @@ def estimate_params_expanded(
 
                 # Find and compare error
                 err = np.sum(np.square(norm_real_data - norm_SIR))
+                errs.append(err)
                 if err < err_min:
                     err_min = err
                     best_params = params
 
-    return best_params
+    return best_params,errs
 
 
 # Specify period and overshoot
@@ -115,13 +116,13 @@ data = dp4e.Create_dataframe(
 mp = [1 / 9, 1 / 7, 1 / 16, 1 / 15]
 
 # Search for best values of beta, phi1 and phi2
-opt_params = estimate_params_expanded(
+opt_params,errs = estimate_params_expanded(
     X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
     t1=t0 - overshoot,
     t2=t0 + overshoot,
     data=data,
     mp=mp,
-    precision=3
+    precision=6
 )
 
 print(opt_params)
