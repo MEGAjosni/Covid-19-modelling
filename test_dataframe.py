@@ -7,6 +7,7 @@ Created on Fri Jun 11 11:05:20 2021
 
 import pandas as pd
 import Data_prep_4_expanded as dp4e
+import numpy as np
 
 
 # Get data
@@ -19,4 +20,8 @@ forecast = False
 
 
 
-X = dp4e.Create_dataframe(Gamma1,Gamma2 ,s2, sim_days, forecast)
+data = dp4e.Create_dataframe(Gamma1,Gamma2 ,s2, sim_days, forecast)
+T = np.zeros(len(data['R2'])*10)
+for i in range(len(data['R2'])):
+     T[(i*10):(i*10)+10] = data['R2'][i]/10
+    
