@@ -54,11 +54,11 @@ def estimate_beta_simple(
 
 
 def beta_over_time_simple(
-        t1,
-        t2,
-        overshoot,
-        data,
-        gamma=1/9
+        t1: dt.date,
+        t2: dt.date,
+        overshoot: dt.timedelta,
+        data: pd.core.frame.DataFrame,
+        gamma: float = 1/9
 ):
 
     simdays = (t2 - t1).days + 1
@@ -78,21 +78,20 @@ def beta_over_time_simple(
 
 
 def estimate_params_expanded(
-        X_0,
-        t1,  # Start
-        t2,  # Stop
-        data,
-        mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
-        precision=5
+        X_0: np.array,
+        t1: dt.date,  # Start
+        t2: dt.date,  # Stop
+        data: pd.core.frame.DataFrame,
+        mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        precision: int = 5
 ):
 
     gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
     best_params = [0, 0, 0]
 
-    # Normalize data
+    # Get relevant data
     real_data = np.transpose(data.loc[t1:t2].to_numpy())
-    # norm_real_data = np.nan_to_num(real_data / np.linalg.norm(real_data, axis=1, keepdims=True), nan=0)
 
     for k in tqdm(range(precision)):
         beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
@@ -110,9 +109,8 @@ def estimate_params_expanded(
                     simtime=(t2 - t1).days
                 )
 
-                # Normalize simulation
+                # Get simulation points corresponding to real data
                 SIR = np.transpose(SIR[0::10, :])
-                # norm_SIR = np.nan_to_num(SIR / np.linalg.norm(SIR, axis=1, keepdims=True), nan=0)
 
                 # Find and compare error
                 rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
@@ -136,11 +134,11 @@ def estimate_params_expanded(
 
 
 def params_over_time_expanded(
-        t1,
-        t2,
-        overshoot,
-        data,
-        mp
+        t1: dt.date,
+        t2: dt.date,
+        overshoot: dt.timedelta,
+        data: pd.core.frame.DataFrame,
+        mp: list
 ):
 
     simdays = (t2 - t1).days + 1
@@ -177,24 +175,26 @@ data = dp4e.Create_dataframe(
     forecast=False
 )
 
+print(type(data))
+
 mp = [1/9, 1/7, 1/16, 1/30]
 
-opt_params = estimate_params_expanded(
-        X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
-        t1=t0 - overshoot,  # Start
-        t2=t0 + overshoot,  # Stop
-        data=data,
-        mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
-        precision=5
-)
-
-# # Search for best values of beta, phi1 and phi2
-# opt_params = params_over_time_expanded(
-#     t1=t0,
-#     t2=t0 + dt.timedelta(days=simdays),
-#     overshoot=overshoot,
-#     data=data,
-#     mp=mp
+# opt_params = estimate_params_expanded(
+#         X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+#         t1=t0 - overshoot,  # Start
+#         t2=t0 + overshoot,  # Stop
+#         data=data,
+#         mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+#         precision=5
 # )
+
+# Search for best values of beta, phi1 and phi2
+opt_params = params_over_time_expanded(
+    t1=t0,
+    t2=t0 + dt.timedelta(days=simdays),
+    overshoot=overshoot,
+    data=data,
+    mp=mp
+)
 
 print(opt_params)
