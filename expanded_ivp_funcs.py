@@ -10,7 +10,6 @@ from sys import exit
 
 
 def derivative_expanded(X, mp, t):
-
     # *** Description ***
     # Computes the derivative of X using model parameters
 
@@ -83,11 +82,10 @@ def RK4(
 
 def PID_cont(X, mp, e_total, e_prev, K):
     I3_hat = 322
-    e = X[3]-I3_hat
+    e = X[3] - I3_hat
     e_total = e_total + e
     PID = -((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev))
-    
-        
+
     # Cant handle large exponents:
     if PID > 35:
         new_beta = 0.8 * mp[0]
@@ -103,9 +101,8 @@ def PID_cont(X, mp, e_total, e_prev, K):
     return new_beta, e, e_total
 
 
-
 def simulateSIR(
-        X_0: np.array,  # Initial values of SIR [S_0, I_0, R_0]
+        X_0: np.array,  # Initial values of SIR
         mp: list,  # Model parameters [beta, gamma, N]
         T: np.array,  # Total added vaccinations
         simtime: int = 100,  # How many timeunits into the future that should be simulated
@@ -119,24 +116,27 @@ def simulateSIR(
     # t [list]:             All points in time simulated
     # SIR [nested list]:    Values of SIR at all points in time t
 
-    SIR = [X_0]
+    n_steps = int(simtime / stepsize)
 
-    t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
+    SIR = np.zeros((7, n_steps+1))
+    SIR[:, 0] = X_0
 
-    for i in range(int(simtime / stepsize)):
-        SIR.append(method(SIR[i], mp, T[i], stepsize))
+    t = np.arange(start=0, stop=simtime + stepsize / 2, step=stepsize)
 
-    return t, np.array(SIR)
+    for k in range(n_steps):
+        SIR[:, k+1] = method(SIR[:, k], mp, T[k], stepsize)
+
+    return t, SIR
 
 
 def simulateSIR_PID(
         X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
         mp: list,
-        beta_initial,# Model parameters [beta, gamma, N]
+        beta_initial,  # Model parameters [beta, gamma, N]
         T: list,  # Total added vaccinations
         K: list,  # parameters for penalty function
         simtime: int,  # How many timeunits into the future that should be simulated
-        stepsize,  # t_kp1 - t_k
+        stepsize: float,  # t_kp1 - t_k
         method=RK4  # Numerical method to be used [function]
 
 ):
@@ -146,57 +146,17 @@ def simulateSIR_PID(
     e_prev = 0
     error_vals = [0]
     beta_vals = [beta_initial]
-    for i in range(0,int(simtime / stepsize)):
+    for i in range(0, int(simtime / stepsize)):
 
-        if i % 70 == 0: # only update beta every 7 days (10*i = one day)
-            j = int(i/70)
+        if i % 70 == 0:  # only update beta every 7 days (10*i = one day)
+            j = int(i / 70)
             if i == 0:
-                new_beta, e_prev, e_total = PID_cont(X_0,[beta_initial]+mp, e_total, 0, K)
+                new_beta, e_prev, e_total = PID_cont(X_0, [beta_initial] + mp, e_total, 0, K)
             else:
 
-                new_beta, e_prev, e_total = PID_cont(SIR[j-1],[beta_vals[j-1]]+mp, e_total, error_vals[j-1], K)
+                new_beta, e_prev, e_total = PID_cont(SIR[j - 1], [beta_vals[j - 1]] + mp, e_total, error_vals[j - 1], K)
             error_vals.append(e_prev)
             beta_vals.append(new_beta)
-        SIR.append(method(SIR[i], [beta_vals[int(np.floor(3/70))]]+mp, T[i], stepsize))
+        SIR.append(method(SIR[i], [beta_vals[int(np.floor(3 / 70))]] + mp, T[i], stepsize))
 
     return t, SIR, beta_vals, error_vals
-
-
-def param_est_expanded_PID(X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
-                           mp: list,  # Model parameters [beta, gamma, N]
-                           T: list,  # Total added vaccinations
-                           simtime: int = 100,  # How many timeunits into the future that should be simulated
-                           stepsize: float = 1,  # t_kp1 - t_k
-                           method=RK4  # Numerical method to be used [function]
-
-                           ):
-    Min_betas = []
-    count = 0
-    for i in np.linspace(-4, 0, 50):
-        for j in np.linspace(-10 / 1000, 0, 50):
-            for k in np.linspace(-10 * 80, 0, 50):
-                mp[0] = 0.22
-                t, State_vec, beta_vals, error_vals = simulateSIR_PID(
-                    X_0=X_0,
-                    mp=mp,
-                    T=T,
-                    K=[i, j, k],
-                    simtime=simtime,
-                    stepsize=1,
-                    method=RK4
-
-                )
-
-                count += 1
-                if count % 1000 == 0:
-                    print("Completed: ", count * 100 / (50 ** 3), "%")
-                if max(error_vals) <= 0:
-                    Min_betas.append([min(beta_vals), i, j, k])
-
-    opt_parameters = []
-    best_beta = 0
-    for i in range(len(Min_betas)):
-        if Min_betas[i][0] >= best_beta:
-            best_beta = Min_betas[i][0]
-            opt_parameters = [Min_betas[i][1], Min_betas[i][2], Min_betas[i][3]]
-        return opt_parameters, best_beta
