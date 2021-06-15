@@ -81,23 +81,27 @@ def RK4(
     return X_kp1
 
 
-def PID_cont(X, mp, d, e_total, e_prev, K):
+def PID_cont(X, mp, e_total, e_prev, K):
     I3_hat = 322
     e = X[3]-I3_hat
     e_total = e_total + e
+    PID = -((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev))
+    
+        
+    # Cant handle large exponents:
+    if PID > 35:
+        new_beta = 0.8 * mp[0]
+    elif PID < -35:
+        new_beta = 1.2 * mp[0]
+    else:
+        new_beta = mp[0] * np.nan_to_num((0.8 + 0.4 / (1 + math.exp(PID))))
+    if new_beta < 0:
+        new_beta = 0
+    if new_beta > 0.25:
+        new_beta = 0.25
 
-    if d % 7 == 0:
-        try:
-            mp[0] = mp[0] * (0.8 + 0.4 / (1 + math.exp(-((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev)))))
-        except OverflowError:
-            pass
+    return new_beta, e, e_total
 
-    if mp[0] < 0:
-        mp[0] = 0
-    if mp[0] > 0.24:
-        mp[0] = 0.24
-
-    return mp[0], e, e_total
 
 
 def simulateSIR(
@@ -127,7 +131,8 @@ def simulateSIR(
 
 def simulateSIR_PID(
         X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
-        mp: list,  # Model parameters [beta, gamma, N]
+        mp: list,
+        beta_initial,# Model parameters [beta, gamma, N]
         T: list,  # Total added vaccinations
         K: list,  # parameters for penalty function
         simtime: int,  # How many timeunits into the future that should be simulated
@@ -135,25 +140,24 @@ def simulateSIR_PID(
         method=RK4  # Numerical method to be used [function]
 
 ):
-    # *** Description ***
-    # Simulate SIR-model.
-
-    # *** Output ***
-    # t [list]:             All points in time simulated
-    # SIR [nested list]:    Values of SIR at all points in time t
-
     SIR = [X_0]
-
     t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
     e_total = 0
     e_prev = 0
-    error_vals = []
-    beta_vals = []
-    for i in range(int(simtime / stepsize)):
-        mp[0], e_prev, e_total = PID_cont(SIR[i], mp, i, e_total, e_prev, K)
-        error_vals.append(e_prev)
-        beta_vals.append(mp[0])
-        SIR.append(method(SIR[i], mp, T[i], stepsize))
+    error_vals = [0]
+    beta_vals = [beta_initial]
+    for i in range(0,int(simtime / stepsize)):
+
+        if i % 70 == 0: # only update beta every 7 days (10*i = one day)
+            j = int(i/70)
+            if i == 0:
+                new_beta, e_prev, e_total = PID_cont(X_0,[beta_initial]+mp, e_total, 0, K)
+            else:
+
+                new_beta, e_prev, e_total = PID_cont(SIR[j-1],[beta_vals[j-1]]+mp, e_total, error_vals[j-1], K)
+            error_vals.append(e_prev)
+            beta_vals.append(new_beta)
+        SIR.append(method(SIR[i], [beta_vals[int(np.floor(3/70))]]+mp, T[i], stepsize))
 
     return t, SIR, beta_vals, error_vals
 
