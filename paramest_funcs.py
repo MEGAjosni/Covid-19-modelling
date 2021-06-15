@@ -84,7 +84,7 @@ def estimate_params_expanded(
         data: pd.core.frame.DataFrame,
         mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
         precision: int = 5
-):
+) -> np.array:
 
     gamma1, gamma2, gamma3, theta = mp
     err_min = math.inf
@@ -110,25 +110,13 @@ def estimate_params_expanded(
                 )
 
                 # Get simulation points corresponding to real data
-                SIR = np.transpose(SIR[0::10, :])
+                SIR = SIR[:, 0::10]
 
                 # Find and compare error
                 rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
                 if rel_err < err_min:
                     err_min = rel_err
                     best_params = params
-
-    # t, SIR = e_ivp.simulateSIR(
-    #     X_0=X_0,
-    #     mp=[best_params[0], gamma1, gamma2, gamma3, theta, best_params[1], best_params[2]],
-    #     method=e_ivp.RK4,
-    #     T=np.zeros((t2 - t1).days * 10 + 1),
-    #     simtime=(t2 - t1).days
-    # )
-    #
-    # plt.plot(t, SIR[:, 1:])
-    # plt.legend(['I1', 'I2', 'I3', 'R1', 'R2', 'R3'])
-    # plt.show()
 
     return np.round(best_params, decimals=precision)
 

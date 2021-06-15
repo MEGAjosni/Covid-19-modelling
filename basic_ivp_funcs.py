@@ -62,6 +62,7 @@ def simulateSV(
 def ExplicitEuler(
         X_k: np.array,  # Values of SIR at time t_k
         mp: list,  # Model parameters [beta, gamma]
+        T: np.array,
         stepsize=0.1  # t_kp1 - t_k
 ):
     # *** Description ***
@@ -80,6 +81,7 @@ def ExplicitEuler(
 def RK4(
         X_k: np.array,  # Values of SIR at time t_k
         mp: list,  # Model parameters [beta, gamma]
+        T: np.array,
         stepsize: float = 0.1  # t_kp1 - t_k
 ):
     # *** Description ***
@@ -99,11 +101,11 @@ def RK4(
 
 
 def simulateSIR(
-        X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
+        X_0: np.array,  # Initial values of SIR [S_0, I_0, R_0]
         mp: list,  # Model parameters [beta, gamma]
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
-        method=ExplicitEuler  # Numerical method to be used [function]
+        method=RK4  # Numerical method to be used [function]
 ):
     # *** Description ***
     # Simulate SIR-model.
@@ -112,11 +114,14 @@ def simulateSIR(
     # t [list]:             All points in time simulated
     # SIR [nested list]:    Values of SIR at all points in time t
 
-    SIR = [X_0]
+    n_steps = int(simtime / stepsize)
+
+    SIR = np.zeros((3, n_steps + 1))
+    SIR[:, 0] = X_0
 
     t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
 
-    for i in range(int(simtime / stepsize)):
-        SIR.append(method(SIR[i], mp, stepsize))
+    for k in range(n_steps):
+        SIR[:, k+1] = method(SIR[:, k], mp, T[k], stepsize)
 
-    return t, np.array(SIR)
+    return t, SIR
