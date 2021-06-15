@@ -24,10 +24,11 @@ def estimate_beta_simple(
         gamma=1 / 9,
         precision=3
 ):
+    # Initialize local variables
     err_min = math.inf
     best_beta = 0
 
-    # Normalize data
+    # Get relevant data
     real_data = np.transpose(data[t1:t2].to_numpy())
 
     for k in range(precision):
@@ -40,10 +41,11 @@ def estimate_beta_simple(
                     simtime=(t2 - t1).days
                 )
 
+                # Get simulation points corresponding to real data
                 SIR = np.transpose(SIR[0::10, :])
 
                 # Find and compare error
-                rel_err = np.linalg.norm(np.square(real_data - SIR), axis=1) / np.linalg.norm(real_data, axis=1)
+                rel_err = np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1)
                 if rel_err < err_min:
                     err_min = rel_err
                     best_beta = beta
@@ -90,17 +92,15 @@ def estimate_params_expanded(
 
     # Normalize data
     real_data = np.transpose(data.loc[t1:t2].to_numpy())
-    norm_real_data = np.nan_to_num(real_data / np.linalg.norm(real_data, axis=1, keepdims=True), nan=0)
-    print(norm_real_data)
+    # norm_real_data = np.nan_to_num(real_data / np.linalg.norm(real_data, axis=1, keepdims=True), nan=0)
 
-    for k in range(precision):
+    for k in tqdm(range(precision)):
         beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
         phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
         phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-        for k in itertools.product(beta_vals, phi1_vals, phi2_vals):
-            params = list(k
-                          )
+        for par in itertools.product(beta_vals, phi1_vals, phi2_vals):
+            params = list(par)
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
@@ -112,12 +112,12 @@ def estimate_params_expanded(
 
                 # Normalize simulation
                 SIR = np.transpose(SIR[0::10, :])
-                norm_SIR = np.nan_to_num(SIR / np.linalg.norm(SIR, axis=1, keepdims=True), nan=0)
+                # norm_SIR = np.nan_to_num(SIR / np.linalg.norm(SIR, axis=1, keepdims=True), nan=0)
 
                 # Find and compare error
-                err = np.sum(np.square(norm_real_data - norm_SIR))
-                if err < err_min:
-                    err_min = err
+                rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
+                if rel_err < err_min:
+                    err_min = rel_err
                     best_params = params
 
     # t, SIR = e_ivp.simulateSIR(
@@ -161,7 +161,7 @@ def params_over_time_expanded(
 
 
 # Specify period and overshoot
-start_day = '2021-02-01'  # start day
+start_day = '2020-12-01'  # start day
 simdays = 100
 overshoot = 10
 
