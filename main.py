@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import time
 import datetime as dt
 import pandas as pd
-#import tikzplotlib
+import tikzplotlib
 import numpy as np
 from SIR_basic_data import X
 import paramest_funcs as paramest
@@ -68,8 +68,8 @@ ax2.scatter(T, X['R'][t1:t2], c = "b",alpha = alpha, label = "R")
 ax.tick_params(axis='x', rotation=45)
 ax.legend(loc = "center left")
 ax2.legend(loc = "center right")
+tikzplotlib.save('test.tex')
 plt.show()
-#tikzplotlib.save('test.tex')
 
 #%% Variying beta
 
