@@ -5,7 +5,7 @@ Created on Fri Jun  4 15:10:43 2021
 @author: alboa
 
 """
-
+import matplotlib.pyplot as plt
 import expanded_ivp_funcs as e_ivp
 import numpy as np
 from tqdm import tqdm
@@ -31,9 +31,9 @@ def estimate_params_expanded_PID(
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
-            Kp = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
-            Ki = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
-            Kd = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
+            Kp = np.linspace(best_params[0] - 10 / (10 ** k), best_params[0] + 1 / (100 ** k), 21)
+            Ki = np.linspace(best_params[1] - 10 / (10 ** k), best_params[1] + 1 / (100 ** k), 21)
+            Kd = np.linspace(best_params[2] - 10 / (10 ** k), best_params[2] + 1 / (100 ** k), 21)
     
             for comb in itertools.product(Kp,Ki,Kd):
                 params = list(comb)
@@ -47,9 +47,8 @@ def estimate_params_expanded_PID(
                     method=e_ivp.RK4
                     
                 )
-                print('hey')
+
                 if max(error_vals) <= 0:
-                    
                     if min(beta_vals) > best_beta:
                         best_params = params
                         best_beta = min(beta_vals)
@@ -63,7 +62,7 @@ def estimate_params_expanded_PID(
                                 
 
 start_day = '2020-12-01'  # start day
-simdays = 21
+simdays = 100
 overshoot = 7
 beta,phi1,phi2 = [0.195738, 0.010765, 0.002307]
 gamma1 = 1/7
@@ -80,11 +79,18 @@ data = dp4e.Create_dataframe(
     Gamma1=gamma1,
     Gamma2=gamma2,
     s2=t0,
-    sim_days=100,
+    sim_days=simdays,
     forecast=False
 )
 
-mp = [beta,gamma1, gamma2, gamma3, theta, phi1, phi2]
+mp = [beta, gamma1, gamma2, gamma3, theta, phi1, phi2]
+
+T = np.zeros(len(data['R2'])*10)
+for i in range(len(data['R2'])):
+   T[(i*10):(i*10)+10] = data['R2'][i]/10
+
+
+
 
 worst_case_beta , opt_params = estimate_params_expanded_PID(
     X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
@@ -92,5 +98,23 @@ worst_case_beta , opt_params = estimate_params_expanded_PID(
     simdays = simdays,
     mp=mp,
     precision=4
-)
+    )
 
+t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+                    X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+                    mp=mp,
+                    T = T,
+                    K = opt_params,
+                    simtime=simdays,
+                    stepsize=0.1,
+                    method=e_ivp.RK4
+                    
+                )
+# generate ICU data vector
+ICU = []
+for i in range(len(t)):
+    ICU.append(State_vec[i][3])
+    
+plt.plot(t,ICU,t,np.ones(len(State_vec))*322)
+plt.bar()
+plt.plot(t,beta_vals)

@@ -82,16 +82,15 @@ def RK4(
 
 
 def PID_cont(X, mp, d, e_total, e_prev, K):
-    I2_hat = 1000
-    I3_hat = 1000
-    e = max(X[2] - I2_hat, X[3] - I3_hat)
+    I3_hat = 322
+    e = X[3]-I3_hat
     e_total = e_total + e
 
     if d % 7 == 0:
         try:
             mp[0] = mp[0] * (0.8 + 0.4 / (1 + math.exp(-((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev)))))
         except OverflowError:
-            exit()
+            pass
 
     if mp[0] < 0:
         mp[0] = 0
@@ -162,7 +161,6 @@ def simulateSIR_PID(
 def param_est_expanded_PID(X_0: list,  # Initial values of SIR [S_0, I_0, R_0]
                            mp: list,  # Model parameters [beta, gamma, N]
                            T: list,  # Total added vaccinations
-                           K: list,  # parameters for penalty function
                            simtime: int = 100,  # How many timeunits into the future that should be simulated
                            stepsize: float = 1,  # t_kp1 - t_k
                            method=RK4  # Numerical method to be used [function]
