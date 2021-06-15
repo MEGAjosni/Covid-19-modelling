@@ -131,8 +131,8 @@ def simulateSIR_PID(
         mp: list,  # Model parameters [beta, gamma, N]
         T: list,  # Total added vaccinations
         K: list,  # parameters for penalty function
-        simtime: int = 100,  # How many timeunits into the future that should be simulated
-        stepsize: float = 1,  # t_kp1 - t_k
+        simtime,  # How many timeunits into the future that should be simulated
+        stepsize,  # t_kp1 - t_k
         method=RK4  # Numerical method to be used [function]
 
 ):

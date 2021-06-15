@@ -3,7 +3,9 @@
 Created on Fri Jun  4 15:10:43 2021
 
 @author: alboa
+
 """
+
 import expanded_ivp_funcs as e_ivp
 import numpy as np
 # Import added vaccine data
@@ -48,26 +50,30 @@ mp = [0.22,
 
 Min_betas = []
 count = 0
-for i in np.linspace(-10,0,100):
-        for j in np.linspace(-1/10,0,100):
-            for k in np.linspace(-2*80,0,100):
-                mp[0] = 0.22
-                t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
-                    X_0=X_0,
-                    mp=mp,
-                    T = Activated_vaccines[30:130],
-                    K = [i,j,k],
-                    simtime=simdays,
-                    stepsize=1,
-                    method=e_ivp.RK4
-                    
-                )
+for k in tqdm(range(precision)):
+        beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
+        phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
+        phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
+
+        for comb in itertools.product(beta_vals, phi1_vals, phi2_vals):
+            params = list(comb)
+            mp[0] = 0.22
+            t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+                X_0=X_0,
+                mp=mp,
+                T = Activated_vaccines[30:130],
+                K = [i,j,k],
+                simtime=simdays,
+                stepsize=1,
+                method=e_ivp.RK4
                 
-                count += 1 
-                if  count % 10000 == 0:
-                    print("Completed: ", count * 100/(100**3),"%")
-                if max(error_vals) <= 0:
-                    Min_betas.append([min(beta_vals),i,j,k])
+            )
+            
+            count += 1 
+            if  count % 10000 == 0:
+                print("Completed: ", count * 100/(100**3),"%")
+            if max(error_vals) <= 0:
+                Min_betas.append([min(beta_vals),i,j,k])
 
 opt_parameters = []
 best_beta = 0
