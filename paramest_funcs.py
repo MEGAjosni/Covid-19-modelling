@@ -64,7 +64,7 @@ def estimate_params_expanded(
 
     # Normalize data
     real_data = np.transpose(data[t1:t2].to_numpy())
-    norm_real_data = np.nan_to_num((real_data - real_data.mean(axis=1, keepdims=True)) / real_data.std(axis=1, keepdims=True), nan=0)
+    norm_real_data = np.nan_to_num(real_data / np.linalg.norm(real_data, axis=1, keepdims=True), nan=0)
 
     for k in tqdm(range(precision)):
         beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
@@ -84,13 +84,25 @@ def estimate_params_expanded(
 
                 # Normalize simulation
                 SIR = np.transpose(SIR[0::10, :])
-                norm_SIR = np.nan_to_num((SIR - SIR.mean(axis=1, keepdims=True)) / SIR.std(axis=1, keepdims=True), nan=0)
+                norm_SIR = np.nan_to_num(SIR / np.linalg.norm(SIR, axis=1, keepdims=True), nan=0)
 
                 # Find and compare error
                 err = np.sum(np.square(norm_real_data - norm_SIR))
                 if err < err_min:
                     err_min = err
                     best_params = params
+
+    t, SIR = e_ivp.simulateSIR(
+        X_0=X_0,
+        mp=[best_params[0], gamma1, gamma2, gamma3, theta, best_params[1], best_params[2]],
+        method=e_ivp.RK4,
+        T=np.zeros((t2 - t1).days * 10 + 1),
+        simtime=(t2 - t1).days
+    )
+
+    plt.plot(t, SIR[:, 1:])
+    plt.legend(['I1', 'I2', 'I3', 'R1', 'R2', 'R3'])
+    plt.show()
 
     return best_params
 
@@ -112,7 +124,7 @@ data = dp4e.Create_dataframe(
     forecast=False
 )
 
-mp = [1 / 9, 1 / 7, 1 / 16, 1 / 15]
+mp = [1 / 9, 1 / 14, 1 / 16, 1 / 15]
 
 # Search for best values of beta, phi1 and phi2
 opt_params = estimate_params_expanded(
