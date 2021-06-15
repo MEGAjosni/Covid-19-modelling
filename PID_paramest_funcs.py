@@ -15,7 +15,7 @@ import datetime as dt
 import math
 import Data_prep_4_expanded as dp4e
 # Import added vaccine data
-# Specify period, overshoot and non-estimating parameters
+
 
 
 def estimate_params_expanded_PID(
@@ -32,9 +32,9 @@ def estimate_params_expanded_PID(
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
-            Kp = np.linspace(best_params[0] - 100 / (10 ** k), best_params[0] + 10 / (100 ** k), 21)
-            Ki = np.linspace(best_params[1] - 100 / (10 ** k), best_params[1] + 10 / (100 ** k), 21)
-            Kd = np.linspace(best_params[2] - 100 / (10 ** k), best_params[2] + 10 / (100 ** k), 21)
+            Kp = np.linspace(best_params[0] - 100 / (10 ** k), best_params[0] + 100 / (10 ** k), 21)
+            Ki = np.linspace(best_params[1] - 100 / (10 ** k), best_params[1] + 100 / (10 ** k), 21)
+            Kd = np.linspace(best_params[2] - 100 / (10 ** k), best_params[2] + 100 / (10 ** k), 21)
     
             for comb in itertools.product(Kp,Ki,Kd):
                 params = list(comb)
@@ -54,23 +54,22 @@ def estimate_params_expanded_PID(
                     if min(beta_vals[1:]) > best_beta:
                         best_params = params
                         best_beta = min(beta_vals[1:])
-            print("\n Current best params: ", best_params)        
+            print("\n Current best params: ", best_params, "with lowest beta of: ", best_beta)  
     return best_beta, best_params
                     
                     
                     
                     
-                    
-                                
+# Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 50
-overshoot = 7
-beta,phi1,phi2 = [0.195738, 0.010765, 0.002307]
-gamma1 = 1/7
-gamma2 = 1/14
-gamma3 = 1/21
-theta = 1/15
+simdays = 140
+overshoot = 0
+beta,phi1,phi2 = [0.17, 0.02, 0.09]
+gamma1 = 1/9
+gamma2 = 1/7
+gamma3 = 1/16
+theta = 1/30
 
 
 t0 = pd.to_datetime(start_day)
@@ -100,9 +99,9 @@ worst_case_beta , opt_params = estimate_params_expanded_PID(
     simdays = simdays,
     beta_initial = beta,
     mp=mp,
-    precision=3
+    precision=6
     )
-
+#%%
 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
                     mp=mp,
@@ -119,5 +118,7 @@ ICU = []
 for i in range(len(t)):
     ICU.append(State_vec[i][3])
     
-plt.plot(t,ICU,t,np.ones(len(State_vec))*322)
+plt.plot(t,ICU,t,np.ones(len(State_vec))*322/2)
+plt.show
 plt.plot(range(len(beta_vals)),beta_vals)
+plt.show
