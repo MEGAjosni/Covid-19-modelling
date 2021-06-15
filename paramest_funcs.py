@@ -45,7 +45,7 @@ def estimate_beta_simple(
                 SIR = np.transpose(SIR[0::10, :])
 
                 # Find and compare error
-                rel_err = np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1)
+                rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
                 if rel_err < err_min:
                     err_min = rel_err
                     best_beta = beta
