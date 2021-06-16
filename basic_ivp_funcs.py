@@ -124,4 +124,4 @@ def simulateSIR(
     for k in range(n_steps):
         SIR[:, k+1] = method(SIR[:, k], mp, 0, stepsize)
 
-    return t, SIR
+    return t, SIR.transpose()
