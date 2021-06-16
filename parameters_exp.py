@@ -65,6 +65,8 @@ betas = -(dS/S+tau/(S+I1+R1))*N/I1
 #parameters expanded model w.o beta
 mp_nobeta = [Gamma1,Gamma2,Gamma3,tau, theta, phi1, phi2]
 
+
+
 # =============================================================================
 # 
 # # Get data

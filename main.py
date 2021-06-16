@@ -108,17 +108,17 @@ for i in range(len(betas_calc)):
         betas_calc_avg.append((betas_calc[i-7:i+7]).mean())
         A = (-S*I/N)[i-7:i+7]
         b = dS[i-7:i+7]
-        betas_calc_ls.append(np.linalg.inv(np.dot(A.transpose,A))*np.dot(A.transpose(),b))
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
     elif i < 7:
         betas_calc_avg.append((betas_calc[0:i+7]).mean())
         A = (-S*I/N)[0:i+7]
         b = dS[0:i+7]
-        betas_calc_ls.append(np.linalg.inv(np.dot(A.transpose,A))*np.dot(A.transpose(),b))
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
     elif i > len(betas_calc)-7:
         betas_calc_avg.append((betas_calc[i-7:-1]).mean())
         A = (-S*I/N)[i-7:-1]
         b = dS[i-7:-1]
-        betas_calc_ls.append(np.linalg.inv(np.dot(A.transpose,A))*np.dot(A.transpose(),b))
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
         
 
 T = list(range(sim_days + 1))
@@ -128,6 +128,8 @@ ax2 = ax.twinx()
 ax.plot(T, betas.transpose(), c = "b")
 T2 = list(range(sim_days -3))
 ax.plot(T2, np.array(betas_calc_avg).transpose(), c = "g")
+ax.plot(T2, np.array(betas_calc_ls).transpose(), c = "r")
+
 ax2.plot(T, np.asarray(X["I"][t1:t2]), c = "tab:orange")
 
 plt.title("Simulation varying beta")
@@ -139,3 +141,6 @@ ax2.legend("Infected")
 plt.show()
 
 #%% 
+
+
+

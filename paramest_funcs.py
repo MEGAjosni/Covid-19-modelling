@@ -144,42 +144,57 @@ def params_over_time_expanded(
 
     return params
 
+def estimate_params_expanded_LA(
+        X_0: np.array,
+        t1: dt.date,  # Start
+        t2: dt.date,  # Stop
+        X: pd.core.frame.DataFrame,
+        mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        precision: int = 5
+):
+    N = 5800000
+    simdays = (t2 - t1).days + 1
+    params = np.zeros((4, simdays))
 
-# Specify period and overshoot
-start_day = '2021-01-31'  # start day
-simdays = 45
-overshoot = 10
 
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
-
-# Load data
-data = dp4e.Create_dataframe(
-    Gamma1=1/9,
-    Gamma2=1/14,
-    t0=t0,
-    sim_days=100,
-    forecast=False
-)
-
-mp = [1/9, 1/7, 1/16, 1/5]
-
-# opt_params = estimate_params_expanded(
-#         X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
-#         t1=t0 - overshoot,  # Start
-#         t2=t0 + overshoot,  # Stop
-#         data=data,
-#         mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
-#         precision=5
+# =============================================================================
+# 
+# # Specify period and overshoot
+# start_day = '2021-01-31'  # start day
+# simdays = 45
+# overshoot = 10
+# 
+# t0 = pd.to_datetime(start_day)
+# overshoot = dt.timedelta(days=overshoot)
+# 
+# # Load data
+# data = dp4e.Create_dataframe(
+#     Gamma1=1/9,
+#     Gamma2=1/14,
+#     t0=t0,
+#     sim_days=100,
+#     forecast=False
 # )
-
-# Search for best values of beta, phi1 and phi2
-opt_params = params_over_time_expanded(
-    t1=t0,
-    t2=t0 + dt.timedelta(days=simdays),
-    overshoot=overshoot,
-    data=data,
-    mp=mp
-)
-
-print(opt_params)
+# 
+# mp = [1/9, 1/7, 1/16, 1/5]
+# 
+# # opt_params = estimate_params_expanded(
+# #         X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+# #         t1=t0 - overshoot,  # Start
+# #         t2=t0 + overshoot,  # Stop
+# #         data=data,
+# #         mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+# #         precision=5
+# # )
+# 
+# # Search for best values of beta, phi1 and phi2
+# opt_params = params_over_time_expanded(
+#     t1=t0,
+#     t2=t0 + dt.timedelta(days=simdays),
+#     overshoot=overshoot,
+#     data=data,
+#     mp=mp
+# )
+# 
+# print(opt_params)
+# =============================================================================
