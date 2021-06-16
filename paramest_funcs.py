@@ -29,11 +29,11 @@ def estimate_beta_simple(
     best_beta = 0
 
     # Get relevant data
-    real_data = np.transpose(data[t1:t2].to_numpy())
+    real_data = np.transpose(data.loc[t1:t2].to_numpy())
 
     for k in range(precision):
         for beta in np.linspace(best_beta - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21):
-            if beta >= 0:
+            if beta > 0:
                 _, SIR = b_ivp.simulateSIR(
                     X_0=X_0,
                     mp=[beta, gamma],
@@ -42,8 +42,7 @@ def estimate_beta_simple(
                 )
 
                 # Get simulation points corresponding to real data
-                SIR = np.transpose(SIR[0::10, :])
-
+                SIR = np.array(SIR)[0::10,:]
                 # Find and compare error
                 rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
                 if rel_err < err_min:
@@ -144,7 +143,7 @@ def params_over_time_expanded(
         print(params[:, 0:k+1])
 
     return params
-
+"""
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
@@ -202,3 +201,4 @@ opt_params = params_over_time_expanded(
 )
 
 print(opt_params)
+"""
