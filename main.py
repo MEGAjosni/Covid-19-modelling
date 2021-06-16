@@ -70,6 +70,7 @@ ax2.legend(loc="center right")
 tikzplotlib.save('test.tex')
 plt.show()
 
+<<<<<<< Updated upstream
 # %% Variying beta
 
 """
@@ -99,3 +100,6 @@ T = list(range(simdays))
 plt.bar(T,I[days:days+simdays])
 plt.show()
 """
+=======
+#%% Variying beta
+>>>>>>> Stashed changes
