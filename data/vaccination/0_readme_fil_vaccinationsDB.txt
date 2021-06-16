@@ -148,4 +148,153 @@ Antal borgere:
 Færdigvacc. (%): (Kumulerede antal faerdigvacc. / antal borgere) x 100
 
 ------------------------------------------------------
+				*******************************************************************************
+				***********************************MÅLGRUPPER**********************************
+				*******************************************************************************
+Dette dokument beskriver indholdet af zip-filen. Variabelnavnene, som beskrives nedenfor, refererer til søjlenavne medmindre andet er beskrevet. 
+
+Generel struktur:
+Rækkerne i filerne er som udgangspunkt opdelt efter relevante parametre, eksempelvis aldersgruppering eller tidsopdeling. Filerne er komma-separerede.
+
+Filerne bliver opdateret hver dag og i denne forbindelse kan tidsserier også ændre sig tilbage i tiden, hvis nyere data foreligger. Derfor anbefales det altid at benytte det senest tilgængelige data og for så vidt muligt, ikke at gemme filer og lave tidsserier på basis af gamle filer.
+------------------------------------------------------
+
+Fil 1: Noegletal_vacc_daekning.csv
+
+Bopælsregion: Bopælsregion
+Målgruppe: Vaccinationsmålgruppe ifht. Sundhedsstyrelsens vaccinationskalender
+Ansættelsessted: Ansættelsessted, gældende for målgruppe 4
+Antal førstevaccinerede: Antal påbegyndte vaccinationer for den givne målgruppe/undergruppe og region totalt
+Antal færdigvaccinerede: Antal færdigvaccinerede for den givne målgruppe/undergruppe og region totalt
+Population: Total befolkning, opdelt på målgruppe/undergruppe og region
+Førstegangs vaccinerede dækning (%): Andel af befolkningen som er vaccineret mindst en gang, opdelt på målgruppe/undergruppe og region
+Færdigvaccinerede dækning (%): Andel af befolkningen som er færdigvaccineret, opdelt på målgruppe/undergruppe og region
+
+
+OBS: Gruppen andre_vaccinerede dækker over data som er blevet censureret fra andre grupper i henhold til GDPR.
+
+
+------------------------------------------------------
+
+Fil 2: Maalgrp_Vacc_daekning_Region.csv
+
+Bopælsregion: Bopælsregion.
+1.Plejehjemsbeboere, Dækning - Første vacc.:  Andel af målgruppe 1 som har påbegyndt vaccination, fordelt på region
+2. Borgere > 65, praktisk hjælp og personlig pleje, Dækning - Første vacc.: Andel af målgruppe 2 som har påbegyndt vaccination, fordelt på region
+3. Borgere fra årgang 1936 og derunder (85 år og ældre), Dækning - Første vacc.: Andel af målgruppe 3 som har påbegyndt vaccination, fordelt på region
+4. Personale i sundhedsvæsenet og dele af socialvæsenet, Dækning - Første vacc.: Andel af målgruppe 4 som har påbegyndt vaccination, fordelt på region og arbejdssted
+5. Udvalgte patienter med særligt øget risiko, Dækning - Første vacc.: Andel af målgruppe 5 som har påbegyndt vaccination, fordelt på region
+6. Udvalgte pårørende til personer med særligt øget risiko, Dækning - Første vacc.: Andel af målgruppe 6 som har påbegyndt vaccination, fordelt på region
+7. Personer fra årgang 1937-1941, Dækning - Første vacc.: Andel af målgruppe 7 som har påbegyndt vaccination, fordelt på region
+8. Personer fra årgang 1942-1946, Dækning - Første vacc.: Andel af målgruppe 8 som har påbegyndt vaccination, fordelt på region
+9. Personer fra årgang 1947-1956, Dækning - Første vacc.: Andel af målgruppe 9 som har påbegyndt vaccination, fordelt på region
+10A. Personer fra årgang 1957-1961, Dækning - Første vacc.: Andel af målgruppe 10A som har påbegyndt vaccination, fordelt på region
+10B. Personer fra årgang 1962-1966, Dækning - Første vacc.: Andel af målgruppe 10B som har påbegyndt vaccination, fordelt på region
+10C. Personer fra årgang 1967-1971, Dækning - Første vacc.: Andel af målgruppe 10C som har påbegyndt vaccination, fordelt på region
+10D1. Personer fra årgang 1972-1976 og årgang 2002-2005 Dækning - Første vacc.: Andel af målgruppe 10D1 som har påbegyndt vaccination, fordelt på region
+10D2. Personer fra årgang 1977-1981 og årgang 1997-2001 Dækning - Første vacc.: Andel af målgruppe 10D2 som har påbegyndt vaccination, fordelt på region
+99999.Resterende, Dækning - første vacc.: andel af resterende som har påbegyndt vaccination, fordelt på region
+1.Plejehjemsbeboere, Dækning - Færdigvacc vacc.:  Andel af målgruppe 1 som er færdigvaccinerede, fordelt på region
+2. Borgere > 65, praktisk hjælp og personlig pleje, Dækning - Færdigvacc.: Andel af målgruppe 2 som er færdigvaccinerede, fordelt på region
+3. Borgere fra årgang 1936 og derunder (85 år og ældre), Dækning - Færdigvacc.: Andel af målgruppe 3 som er færdigvaccinerede, fordelt på region
+4. Personale i sundhedsvæsenet og dele af socialvæsenet, Dækning - Færdigvacc.: Andel af målgruppe 4 som er færdigvaccinerede, fordelt på region og arbejdssted
+5. Udvalgte patienter med særligt øget risiko, Dækning - Færdigvacc.: Andel af målgruppe 5 som er færdigvaccinerede, fordelt på region
+6. Udvalgte pårørende til personer med særligt øget risiko, Dækning - Færdigvacc.: Andel af målgruppe 6 som er færdigvaccinerede, fordelt på region
+7. Personer fra årgang 1937-1941, Dækning - Færdigvacc.: Andel af målgruppe 7 som er færdigvaccinerede, fordelt på region
+8. Personer fra årgang 1942-1946, Dækning - Færdigvacc.: Andel af målgruppe 8 som er færdigvaccinerede, fordelt på region
+9. Personer fra årgang 1947-1956, Dækning - Færdigvacc.: Andel af målgruppe 9 som er færdigvaccinerede, fordelt på region
+10A. Personer fra årgang 1957-1961, Dækning - Færdigvacc.: Andel af målgruppe 10A som er færdigvaccinerede, fordelt på region
+10B. Personer fra årgang 1962-1966, Dækning - Færdigvacc.: Andel af målgruppe 10B som er færdigvaccinerede, fordelt på region
+10C. Personer fra årgang 1967-1971, Dækning - Færdigvacc.: Andel af målgruppe 10C som er færdigvaccinerede, fordelt på region
+10D1. Personer fra årgang 1972-1976 og årgang 2002-2005 Dækning -  Færdigvacc.: Andel af målgruppe 10D1 som er færdigvaccinerede, fordelt på region
+10D2. Personer fra årgang 1977-1981 og årgang 1997-2001 Dækning - Færdigvacc.: Andel af målgruppe 10D2 som er færdigvaccinerede, fordelt på region
+99999.Resterende, Dækning - første vacc.: andel af resterende som er færdigvaccinerede, fordelt på region
+
+
+
+------------------------------------------------------
+
+Fil 3: Vaccinerede_pr_uge_pr_maalgruppe.csv
+
+Ugenummer: Ugenummer
+Målgruppe: Målgruppe i vaccinationskalenderen
+Dækning førstegangsvaccinerede (kumulativt i %): Andelen som har modtaget første vaccination, opgjort kumulativt på ugebasis, fordelt på region og målgruppe
+Dækning færdigvaccinerede (kumulativt i %): Andelen som har modtaget første vaccination, opgjort kumulativt på ugebasis, fordelt på region og målgruppe
+
+Fil 4: Autorisation.csv
+Bopælsregion: Bopælsregion
+Antal førstevaccinerede: Antal påbegyndt vaccinerede, fordelt på autorisation og region
+Antal færdigvaccinerede: Antal færdigvaccinerede, fordelt på autorisation og region
+Autorisation, gældende for personer i målgruppe 4: Autorisation, gældende for personer i målgruppe 4
+Population: Antal borger i gruppen
+
+------------------------------------------------------
+
+
+				*******************************************************************************
+				*********************************VACCINEDOSER**********************************
+				*******************************************************************************
+
+Fil: Leverencedata:
+Dato: Dato
+Uge_nr: Ugenummer
+Region: Region som har modtaget doserne
+Vaccine: Vaccinetype
+Antal_Doser: Antal doser af den givne vaccinetype modtaget
+
+
+Filen indeholder leverede doser pr. region, men ikke en udregnet udnyttelsesprocent.
+Udnyttelsesprocenten kan udregnes således: ((antal påbegyndt vaccinerede + (total antal færdigvaccinerede – antal færdigvaccinerede med Janssen)/leverede doser)*100.
+Antal færdigvaccinerede med Janssen trækkes fra det totale antal færdigvaccinerede, da denne vaccinetype kun kræver én dosis og dermed indgår i både påbegyndt og færdigvaccinerede.
+
+
+				*******************************************************************************
+				*********************************VACCINER SOGNE********************************
+				*******************************************************************************
+
+
+
+Dette dokument beskriver indholdet af filen Vaccination_sogne. Variabelnavnene, som beskrives nedenfor, refererer til søjlenavne.
+Filen bliver opdateret hver onsdag, med data fra tirsdag. 
+
+Datakilder og opgørelsesfrekvenser:
+•	CPR-registeret: Opgjort tirsdag
+•	Målgruppedata (TcDK): Opgjort mandag
+•	Det Danske Vaccinationsregister: Opgjort tirsdag
+•	Bookingdata: Opdateres mandag aften
+
+
+Generel beskrivelse:
+I opgørelsen indgår personer, der er inviteret til vaccination mod COVID-19 for mindst 7 dage siden. Det vil sige, at personer, der er inviteret inden for de sidste 7 dage ikke indgår. 
+
+I opgørelsen tages der udgangspunkt i de forskellige trin i vaccinationsforløbet. 
+Opgørelsen er lavet, så personer kun kan optræde på ét af disse trin, og de placeres på det højest muligt opnåede trin i vaccinationsforløbet, hvor påbegyndt vaccination er et højere trin
+end inviteret til og booket tid til vaccination. Derfor summer andelene på de fire trin til 100 pct. 
+Personer, der i forbindelse med tilvalgsordningen bliver vaccineret med vaccinen fra Johnson & Johnson vil indgå under færdigvaccinerede.
+
+Antal inviterede er vist i antal personer, da det er personer på dette trin, som kommunerne pt. retter en særlig indsats overfor. 
+
+Vær opmærksom på, at det afviger fra opgørelserne på det interaktive dashboard og andre opgørelser for vaccinationstilslutning på SSIs hjemmeside, 
+hvor personer kan indgå i både gruppen for påbegyndt vaccination og færdigvaccineret.
+
+Diskretionering:
+Opgørelsen vil blive diskretioneret, hvis befolkningen i sognet er færre end 20 personer. I de fleste tilfælde vil personerne fortsat indgår i opgørelsen af kommunen, 
+men uden at være tilknyttet et sogn. Er der under 20 personer, der ikke kan tilknyttes et sogn vil data dog blive fjernet fra opgørelsen. 
+Hvis der er mindre end 10 personer i gruppen af antal inviterede, der ikke har booket eller er vaccineret, vil det fremgå som <10 og andelene vil være diskretioneret.
+
+------------------------------------------------------
+
+Beskrivelse af variable:
+
+Bo_kom_today:			Bopælskommune på opgørelsestidspunktet.
+Sogn: 				Bopælssogn på opgørelsestidspunktet. Enkelte sogne fordeler sig geografisk over flere kommuner og vil derfor fremgå flere gange.
+				Personer, der ikke har en adresse, kan ikke placeres i et sogn. De vil fremgå under kommunen, men uden et sogn (se også under diskretionering).
+Inviterede_i_sognet:            Det samlede antal personer, som opgørelsen tager udgangspunkt i.
+Antal_inviteret_ikke_booket:    Antal personer, som er inviteret, men endnu ikke har booket tid, er påbegyndt eller har færdiggjort vaccination.
+Andel_inviteret_ikke_booket:    Andel personer, som er inviteret, men endnu ikke har booket tid, er påbegyndt eller har færdiggjort vaccination.
+Andel_booket:                   Andel personer, som har booket tid, men som ikke er påbegyndt eller har færdiggjort vaccination.
+Andel_påbegyndt:                Andel personer, som er påbegyndt vaccination, men ikke har færdiggjort vaccination.
+Andel_færdigvaccineret:         Andel personer, som har færdiggjort vaccination.
+
+-----------------------------------------------------
 

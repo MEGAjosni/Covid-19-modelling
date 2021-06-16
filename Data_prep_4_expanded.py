@@ -16,11 +16,9 @@ from tqdm import tqdm
 
 
 def Create_dataframe(
-        Gamma1: float,  # fracton, rate of recovery from infection
-        Gamma2: float,  # fraction, rate of recovery from hospitalization
-        t0: dt.date,  # date, Start of simulation
-        sim_days: int,  # int, number of days of simulation
-        forecast: bool  # boolean,
+        Gamma1: float = 1/9,  # Fraction, rate of recovery from infection
+        Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
+        forecast: bool = False
 ) -> pd.core.frame.DataFrame:
     # ***** Description *****
     #
@@ -40,8 +38,9 @@ def Create_dataframe(
 
     # Load data
 
-    # Define pandemic start
-    t1 = pd.to_datetime('2020-01-27')
+    # Define dates
+    t0 = pd.to_datetime('2020-01-27')  # Pandemic start
+    t1 = pd.to_datetime('2021-05-31')  # Newest data
 
     # *****************
     # >>> Load data <<<
@@ -89,10 +88,10 @@ def Create_dataframe(
 
     # Load data
 
-    Data_Infected = (gd.infect_dict[infect_keys[12]]['NewPositive'][t1: t0 + dt.timedelta(days=sim_days)] +
-                    gd.infect_dict[infect_keys[13]]['NewPositive'][t1: t0 + dt.timedelta(days=sim_days)]).fillna(0)
-    Data_Dead = gd.infect_dict[infect_keys[3]][t1: t0 + dt.timedelta(days=sim_days)]
-    Data_Hospitalized = gd.infect_dict[infect_keys[7]][t1: t0 + dt.timedelta(days=sim_days)]
+    Data_Infected = (gd.infect_dict[infect_keys[12]]['NewPositive'][t0: t1] +
+                    gd.infect_dict[infect_keys[13]]['NewPositive'][t0: t1]).fillna(0)
+    Data_Dead = gd.infect_dict[infect_keys[3]][t0: t1]
+    Data_Hospitalized = gd.infect_dict[infect_keys[7]][t0: t1]
     Data_Vaccinated = gd.vaccine_dict[vaccine_keys[0]]
 
     DK_vaccine_keys = list(Data_Vaccinated.keys())
@@ -118,10 +117,10 @@ def Create_dataframe(
     # ******************************************
 
     # Initialize DataFrame
-    dates = pd.date_range(start=t1, end=t0 + dt.timedelta(days=sim_days))
+    dates = pd.date_range(start=t0, end=t1)
     X = pd.DataFrame(data=0, index=dates, columns=['S', 'I1', 'I2', 'I3', 'R1', 'R2', 'R3'])
     N = 5800000  # DK population
-    X['S'][t1] = N
+    X['S'][t0] = N
 
     # Fill in state values
     for day in dates:
@@ -141,8 +140,10 @@ def Create_dataframe(
 
         X['I2'][day] = sum(Data_Hospitalized['Total'][day - dt.timedelta(days=int(1 / Gamma2)): day])
         X['I1'][day] = sum(Data_Infected[day - dt.timedelta(days=int(1 / Gamma1)): day]) - X['I2'][day]
-        X['R3'][day] = sum(Data_Dead[Data_Dead.keys()[0]][t1: day])
+        X['R3'][day] = sum(Data_Dead[Data_Dead.keys()[0]][t0: day])
 
     X['R1'] = N - (X['S'] + X['R2'] + X['R3'] + X['I1'] + X['I2'] + X['I3'])
 
     return X
+
+print(Create_dataframe())

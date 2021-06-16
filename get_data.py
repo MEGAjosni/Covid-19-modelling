@@ -104,7 +104,7 @@ if not os.path.exists(data_dir):
     os.makedirs(data_dir)
 
 # Get zipped data folder
-url = 'https://files.ssi.dk/covid19/vaccinationsdata/zipfil/covid19-vaccinationsdata-29032021-lb1f'  # Zip download-link
+url = 'https://files.ssi.dk/covid19/vaccinationsdata/zipfil/vaccinationsdata-dashboard-covid19-16062021-re43'  # Zip download-link
 r = requests.get(url, allow_redirects=True)
 open(data_dir + 'covid19-vaccinationsdata-29032021-lb1f.zip', 'wb').write(r.content)
 
