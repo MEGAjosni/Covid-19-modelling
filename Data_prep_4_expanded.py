@@ -15,7 +15,13 @@ import numpy as np
 from tqdm import tqdm
 
 
-def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
+def Create_dataframe(
+        Gamma1: float, #fracton, rate of recovery from infection
+        Gamma2: float, #fraction, rate of recovery from hospitalization
+        t0: dt.date, #date, Start of simulation
+        sim_days: int, #int, number of days of simulation
+        forecast: bool #boolean,
+) -> pd.core.frame.DataFrame:
     # ***** Description *****
     #
     #   Constructs time indexed dataframe of the 7 variables of the expanded SIR
@@ -24,7 +30,7 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
     #   Inputs :
     #       Gamma1 : fracton, rate of recovery from infection
     #       Gamma2 : fraction, rate of recovery from hospitalization
-    #       s2: date, Start of simulation
+    #       t0: date, Start of simulation
     #       sim_days : int, number of days of simulation
     #       forecast : boolean,
     #   Output :
@@ -58,12 +64,12 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
     # [13] Test_pos_over_time_antigen,
     # [14] Test_regioner
 
-    Data_Infected = gd.infect_dict[infect_keys[12]][s1: s2 + dt.timedelta(days=sim_days)]
-    Data_Dead = gd.infect_dict[infect_keys[3]][s1: s2 + dt.timedelta(days=sim_days)]
-    Data_Hospitalized = gd.infect_dict[infect_keys[7]][s1: s2 + dt.timedelta(days=sim_days)]
+    Data_Infected = gd.infect_dict[infect_keys[12]][s1: t0 + dt.timedelta(days=sim_days)]
+    Data_Dead = gd.infect_dict[infect_keys[3]][s1: t0 + dt.timedelta(days=sim_days)]
+    Data_Hospitalized = gd.infect_dict[infect_keys[7]][s1: t0 + dt.timedelta(days=sim_days)]
     # manual "get_data" for updated vaccination data
     Data_Vaccinated = pd.read_csv(filepath_or_buffer=data_dir, sep=',', thousands='.', decimal=',',
-                                  engine='python')  # [s1 : s2 + dt.timedelta(days=sim_days)]
+                                  engine='python')  # [s1 : t0 + dt.timedelta(days=sim_days)]
     date_name = Data_Vaccinated.columns[0]
 
     # If data is dateindexed convert to datetime64[ns]
@@ -110,18 +116,18 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
     I1 = []
     I2 = list(HOSPITAL_Offset)
     I3 = np.concatenate((ICU_RESP_Offset, mat['All_Data'][:, 0]), axis=0)
-    I3 = list(I3[0:((s2 - s1).days + sim_days)])
+    I3 = list(I3[0:((t0 - s1).days + sim_days)])
     R1 = []
     X = []
     if forecast:
         R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
-        R2 = list(R2[0:((s2 - s1).days + sim_days)])
+        R2 = list(R2[0:((t0 - s1).days + sim_days)])
     if not forecast:
         R2 = list(np.concatenate((VAC_Offset_Empirical, Data_Vaccinated[vaccine_keys[1]]), axis=0))
     R3 = list(DEAD_Offset)
 
     # Some variables need transformation/calculation
-    for i in range((s2 - s1).days + sim_days):
+    for i in range((t0 - s1).days + sim_days):
         
         # create R3
         if i > len(DEAD_Offset) - 1:
@@ -147,6 +153,6 @@ def Create_dataframe(Gamma1, Gamma2, s2, sim_days, forecast):
         R1.append(N - S[i] - R2[i] - R3[i] - I1[i] - I2[i] - I3[i])
         X.append([S[i], I1[i], I2[i], I3[i], R1[i], R2[i], R3[i]])
 
-    datelist = pd.date_range(s1, periods=(s2 - s1).days + sim_days).tolist()
+    datelist = pd.date_range(s1, periods=(t0 - s1).days + sim_days).tolist()
     X = pd.DataFrame(X, columns=['S', 'I1', 'I2', 'I3', 'R1', 'R2', 'R3'], index=datelist)
     return X
