@@ -122,6 +122,6 @@ def simulateSIR(
     t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
 
     for k in range(n_steps):
-        SIR[:, k+1] = method(SIR[:, k], mp, T[k], stepsize)
+        SIR[:, k+1] = method(SIR[:, k], mp, 0, stepsize)
 
     return t, SIR

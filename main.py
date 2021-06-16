@@ -25,7 +25,7 @@ beta_opt = paramest.estimate_beta_simple(
     X_0=X.loc[t1],
     t1=t1,
     t2=t2,
-    real_data=X,
+    data=X,
     gamma=gamma,
     precision=5
 )
@@ -70,36 +70,33 @@ ax2.legend(loc="center right")
 tikzplotlib.save('test.tex')
 plt.show()
 
-<<<<<<< Updated upstream
 # %% Variying beta
 
-"""
+
 gamma = 1/9
 
-X_0 = [N - I_0 - R_0, I_0, R_0]
-mp = [beta_opt, gamma, N]
 
-t, SIR, betas = b_ivp.simulateSIR_betafun(
-    X_0 = X_0,
-    X = test_data,
-    gamma = gamma,
-    N = N,
-    simtime = 100,
-    stepsize = 1,
-    method = b_ivp.RK4)
+betas = pestbeta.beta_over_time_simple(
+        t1 = t1,
+        t2 = t2,
+        overshoot = dt.timedelta(days = 7),
+        data = X,
+        gamma = gamma
+)
+
 
 # Plot optimal solution
-plt.plot(t, np.asarray(SIR)[:,1])
-plt.title("Simulation using optimal parameters")
-plt.legend(["Susceptible", "Infected", "Removed"])
-plt.xlabel("Days since start,    Parameters: " + r'$\beta = $' + "{:.6f}".format(
-    beta_opt) + ", " + r'$\gamma = $' + "{:.6f}".format(gamma_opt))
-plt.ylabel("Number of people")
-plt.ylim([0, max(I)+1000])
-T = list(range(simdays))
-plt.bar(T,I[days:days+simdays])
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+
+ax.plot(T, betas)
+ax2.plot(T, np.asarray(X["I"][t1:t2]))
+
+plt.title("Simulation varying beta")
+plt.legend(["Beta", "Infected"])
+ax.xlabel("time")
+ax.set_ylabel("Number of people")
+ax2.set_ylabel("Beta")
 plt.show()
-"""
-=======
-#%% Variying beta
->>>>>>> Stashed changes
+
+#%% 
