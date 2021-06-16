@@ -29,7 +29,7 @@ def estimate_beta_simple(
     best_beta = 0
 
     # Get relevant data
-    real_data = np.transpose(data.loc[t1:t2].to_numpy())
+    real_data = data.loc[t1:t2].to_numpy()
 
     for k in range(precision):
         for beta in np.linspace(best_beta - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21):
@@ -63,7 +63,7 @@ def beta_over_time_simple(
     simdays = (t2 - t1).days + 1
     betas = np.zeros(simdays)
 
-    for k in range(simdays):
+    for k in tqdm(range(simdays)):
         betas[k] = estimate_beta_simple(
             X_0=data.loc[t1 - overshoot + dt.timedelta(days=k)].to_numpy(copy=True),
             t1=t1 + dt.timedelta(days=k) - overshoot,
