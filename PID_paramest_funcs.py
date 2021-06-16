@@ -26,15 +26,15 @@ def estimate_params_expanded_PID(
         simdays,
         precision,
 ):
-    best_beta = -math.inf 
+    best_beta_avg = -math.inf 
     best_params=[0,0,0]
     T = np.zeros(len(data['R2'])*10)
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
-            Kp = np.linspace(best_params[0] - 100 / (10 ** k), best_params[0] + 100 / (10 ** k), 21)
-            Ki = np.linspace(best_params[1] - 100 / (10 ** k), best_params[1] + 100 / (10 ** k), 21)
-            Kd = np.linspace(best_params[2] - 100 / (10 ** k), best_params[2] + 100 / (10 ** k), 21)
+            Kp = np.linspace(best_params[0] - 100 / (10 ** k), best_params[0] + 100 / (10 ** k), 41)
+            Ki = np.linspace(best_params[1] - 100 / (10 ** k), best_params[1] + 100 / (10 ** k), 41)
+            Kd = np.linspace(best_params[2] - 100 / (10 ** k), best_params[2] + 100 / (10 ** k), 41)
     
             for comb in itertools.product(Kp,Ki,Kd):
                 params = list(comb)
@@ -51,9 +51,9 @@ def estimate_params_expanded_PID(
                 )
 
                 if max(error_vals) <= 0:
-                    if min(beta_vals[1:]) > best_beta:
+                    if sum(beta_vals)/len(beta_vals) > best_beta_avg:
                         best_params = params
-                        best_beta = min(beta_vals[1:])
+                        best_beta = sum(beta_vals)/len(beta_vals)
             print("\n Current best params: ", best_params, "with lowest beta of: ", best_beta)  
     return best_beta, best_params
                     
@@ -63,7 +63,7 @@ def estimate_params_expanded_PID(
 # Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 140
+simdays = 70
 overshoot = 0
 beta,phi1,phi2 = [0.17, 0.02, 0.09]
 gamma1 = 1/9
@@ -99,7 +99,7 @@ worst_case_beta , opt_params = estimate_params_expanded_PID(
     simdays = simdays,
     beta_initial = beta,
     mp=mp,
-    precision=6
+    precision=3
     )
 #%%
 t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
