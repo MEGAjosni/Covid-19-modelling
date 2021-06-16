@@ -143,10 +143,10 @@ def params_over_time_expanded(
         print(params[:, 0:k+1])
 
     return params
-"""
+
 
 # Specify period and overshoot
-start_day = '2020-12-01'  # start day
+start_day = '2021-01-31'  # start day
 simdays = 45
 overshoot = 10
 
@@ -155,30 +155,12 @@ overshoot = dt.timedelta(days=overshoot)
 
 # Load data
 data = dp4e.Create_dataframe(
-    Gamma1=1 / 9,
-    Gamma2=1 / 14,
-    s2=t0,
+    Gamma1=1/9,
+    Gamma2=1/14,
+    t0=t0,
     sim_days=100,
     forecast=False
 )
-
-
-A = data['I3'][t0 : t0 + dt.timedelta(days=5)]
-B = data['I3'][t0 + dt.timedelta(days=2) : t0 + dt.timedelta(days=2) + dt.timedelta(days=5)]
-
-print(A)
-print(B)
-print(pd.concat([A, B], axis=1).fillna(0))
-exit()
-
-# dead = np.transpose(gd.infect_dict['Deaths_over_time'][t0 : t0 + dt.timedelta(days=45)].to_numpy())
-# ICU = data['I3'][t0 : t0 + dt.timedelta(days=45)].to_numpy()
-#
-# print(np.transpose(dead/ICU).mean())
-#
-# plt.plot(np.transpose(dead/ICU))
-# plt.show()
-
 
 mp = [1/9, 1/7, 1/16, 1/5]
 
@@ -201,4 +183,3 @@ opt_params = params_over_time_expanded(
 )
 
 print(opt_params)
-"""
