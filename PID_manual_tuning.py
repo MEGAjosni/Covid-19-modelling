@@ -18,7 +18,7 @@ import Data_prep_4_expanded as dp4e
 # Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 100
+simdays = 150
 overshoot = 0
 beta,phi1,phi2 = [0.13, 0.005, 0.02]
 gamma1 = 1/9
@@ -53,7 +53,8 @@ t, State_vec_PID ,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     mp=mp,
                     T = T,
                     #K = opt_params,
-                    K = [-0.001,-0.0001,-0.25],
+                    #K = [-0.00005,-0.000001,-0.000007],
+                    K = [-0.000003, -0.0000003, -0.006],
                     beta_initial = beta,
                     simtime=simdays,
                     stepsize=0.1,
@@ -78,7 +79,11 @@ for i in range(len(t)):
     ICU.append(SIR[i][3])
     
 plt.plot(t,ICU_PID,t,ICU,t,np.ones(len(State_vec_PID))*322)
-plt.ylim(0,340) 
+plt.ylim(0,1000) 
+plt.title("Current best PID version, average beta: ")
+plt.xlabel('ICU infected')
+plt.ylabel('Days')
+plt.legend(['With PID', 'Without PID', "Threshold"])
+plt.pause(0.5)
 plt.show
-#plt.plot(range(len(beta_vals)),beta_vals)
-plt.show
+print(sum(beta_vals)/len(beta_vals))

@@ -27,23 +27,19 @@ def estimate_params_expanded_PID(
         precision,
 ):
     best_beta_avg = -math.inf 
-    best_params=[0,0,0]
+    best_params=[0.00023400000000000005, -6.599999999999992e-05, -0.0015799999999999998]
     T = np.zeros(len(data['R2'])*10)
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
-        if k == 0:
-            Kp = np.linspace( - 0.01 ,0, 41)
-            Ki = np.linspace( - 0.001, 0, 41)
-            Kd = np.linspace( - 0.01 ,0, 41)
-        else:   
-            Kp = np.linspace(best_params[0] - 0.1 / (10 ** k),best_params[2] + 0.1 / (10 ** k), 21)
-            Ki = np.linspace(best_params[1] - 0.02/ (10 ** k), best_params[1] + 0.02 / (10 ** k), 21)
-            Kd = np.linspace(best_params[2] - 0.1 / (10 ** k), best_params[2] + 0.1 / (10 ** k), 21)
+    
+        Kp = np.linspace(best_params[0] - 0.0001 / (10 ** k),best_params[0] + 0.0001 / (10 ** k), 21)
+        Ki = np.linspace(best_params[1] - 0.0001/ (10 ** k), best_params[1] + 0.0001 / (10 ** k), 21)
+        Kd = np.linspace(best_params[2] - 0.001 / (10 ** k), best_params[2] + 0.001 / (10 ** k), 21)
     
         for comb in itertools.product(Kp,Ki,Kd):
             params = list(comb)
-            t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+            t, State_vec_PID,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                 X_0=X_0,
                 mp=mp,
                 T = T,
@@ -70,18 +66,6 @@ def estimate_params_expanded_PID(
                                             method=e_ivp.RK4 
                                             
                                                                 )
-                                        # generate ICU data vector
-                    ICU_PID = []
-                    ICU = []
-                    for i in range(len(t)):
-                        ICU_PID.append(State_vec_PID[i][3])
-                        ICU.append(SIR[i][3])
-                        
-                    plt.plot(t,ICU_PID,t,ICU,t,np.ones(len(State_vec_PID))*322)
-                    plt.ylim(0,340) 
-                    plt.show
-                    #plt.plot(range(len(beta_vals)),beta_vals)
-                    plt.show
                     # generate ICU data vector
                     ICU_PID = []
                     ICU = []
@@ -94,10 +78,10 @@ def estimate_params_expanded_PID(
                     plt.title("Current best PID version")
                     plt.xlabel('ICU infected')
                     plt.ylabel('Days')
-                    plt.legend('With PID', 'Without PID', "Threshold")
+                    plt.legend(['With PID', 'Without PID', "Threshold"])
+                    plt.pause(0.5)
                     plt.show
-                    #plt.plot(range(len(beta_vals)),beta_vals)
-                    plt.show
+                   
     return best_beta_avg, best_params
                     
                     
@@ -106,7 +90,7 @@ def estimate_params_expanded_PID(
 # Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 100
+simdays = 150
 overshoot = 0
 beta,phi1,phi2 = [0.13, 0.005, 0.02]
 gamma1 = 1/9
@@ -174,6 +158,8 @@ for i in range(len(t)):
     
 plt.plot(t,ICU_PID,t,ICU,t,np.ones(len(State_vec_PID))*322)
 plt.ylim(0,340) 
-plt.show
-#plt.plot(range(len(beta_vals)),beta_vals)
+plt.title("Current best PID version")
+plt.xlabel('ICU infected')
+plt.ylabel('Days')
+plt.legend(['With PID', 'Without PID', "Threshold"])
 plt.show

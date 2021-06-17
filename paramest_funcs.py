@@ -183,8 +183,18 @@ def estimate_params_expanded_LA(
         dxt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)])-np.array(data.loc[t1+dt.timedelta(days=k-1):t1+dt.timedelta(days=k-1)]))[0]
         xt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)]))[0]
         # xt = [S I1 I2 I3 R1 R2 R3]
-        A = np.array([[-xt[1]*xt[0]/N,0,0,0],[0,xt[1],-xt[2],0],[0,0,xt[2],-xt[3]],[0,0,0,xt[3]]])
-        b = np.array([dxt[0]+dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),dxt[2]+mp[1]*xt[2],dxt[3]+mp[2]*xt[3],dxt[6]])
+        
+        A = np.array([[-xt[1]*xt[0]/N,0,0,0],
+                      [0,xt[1],-xt[2],0],
+                      [0,xt[1],-xt[2],0],
+                      [0,0,xt[2],-xt[3]],
+                      [0,0,0,xt[3]]])
+        
+        b = np.array([dxt[0]+dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),
+                      dxt[1]+dxt[5]*xt[1]/(xt[0]+xt[1]+xt[4]+xt[1]*mp[0]),
+                      dxt[2]+mp[1]*xt[2],
+                      dxt[3]+mp[2]*xt[3],
+                      dxt[6]])
         if k == 0:
             As = A
             bs = b

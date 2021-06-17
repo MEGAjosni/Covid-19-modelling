@@ -141,7 +141,15 @@ plt.show()
 
 #%% Varying parameters: Expanded model
 import Data_prep_4_expanded as dp4e
+import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
+import matplotlib.pyplot as plt
+import time
+import datetime as dt
+import pandas as pd
+import tikzplotlib
+import numpy as np
+
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day

@@ -61,11 +61,10 @@ def Create_dataframe(
     # [7]  Newly_admitted_over_time,
     # [8]  plejehjem_ugeoversigt,
     # [9]  Region_summary,
-    # [10] Rt_cases_2021_03_02,
-    # [11] Rt_cases_2021_06_01,
-    # [12] Test_pos_over_time,
-    # [13] Test_pos_over_time_antigen,
-    # [14] Test_regioner
+    # [10] Rt_cases_2021_06_01,
+    # [11] Test_pos_over_time,
+    # [12] Test_pos_over_time_antigen,
+    # [13] Test_regioner
 
     vaccine_keys = list(gd.vaccine_dict.keys())
     # >>> vaccine_keys indices <<<
@@ -87,9 +86,10 @@ def Create_dataframe(
     # [15] Vaccinations_Daekning_region_pr_dag
 
     # Load data
-
-    Data_Infected = (gd.infect_dict[infect_keys[12]]['NewPositive'][t0: t1] +
-                    gd.infect_dict[infect_keys[13]]['NewPositive'][t0: t1]).fillna(0)
+    
+    print(gd.infect_dict[infect_keys[12]])
+    Data_Infected = (gd.infect_dict["Test_pos_over_time"]["NewPositive"][t0: t1] +
+                    gd.infect_dict["Test_pos_over_time_antigen"]["NewPositive"][t0: t1]).fillna(0)
     Data_Dead = gd.infect_dict[infect_keys[3]][t0: t1]
     Data_Hospitalized = gd.infect_dict[infect_keys[7]][t0: t1]
     Data_Vaccinated = gd.vaccine_dict[vaccine_keys[0]]
