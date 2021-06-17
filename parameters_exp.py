@@ -23,19 +23,20 @@ sim_days = 21
 t1 = t0 + dt.timedelta(days=sim_days)
 
 X = Data.Create_dataframe(Gamma1 = Gamma1,
-                     Gamma2 = Gamma2, 
-                     t0 = t0, 
-                     sim_days = sim_days, 
-                     forecast = True)
+                     Gamma2 = Gamma2,
+                     forecast = False)
 
 
 #estimate theta
-dR3 = np.array(X['R3'][t0+dt.timedelta(days=1):t1])-np.array(X['R3'][t0:t0 + dt.timedelta(days=sim_days-2)])
-I3 = np.array(X['I3'][t0:t0 + dt.timedelta(days=sim_days-2)])
+dR3 = np.array(X['R3'][t0+dt.timedelta(days=1):t1])-np.array(X['R3'][t0:t0 + dt.timedelta(days=sim_days-1)])
+I3 = np.array(X['I3'][t0:t0 + dt.timedelta(days=sim_days-1)])
 
 thetas = dR3/I3
 theta = thetas.mean()
 
+
+
+"""
 #estimate phi2
 dI3 = np.array(X['I3'][t0+dt.timedelta(days=1):t1])-np.array(X['I3'][t0:t0 + dt.timedelta(days=sim_days-2)])
 I2 = np.array(X['I2'][t0:t0 + dt.timedelta(days=sim_days-2)])
@@ -64,7 +65,7 @@ betas = -(dS/S+tau/(S+I1+R1))*N/I1
 
 #parameters expanded model w.o beta
 mp_nobeta = [Gamma1,Gamma2,Gamma3,tau, theta, phi1, phi2]
-
+"""
 
 
 # =============================================================================

@@ -1,5 +1,5 @@
 import basic_ivp_funcs as b_ivp
-import paramest_funcs as pestbeta
+import paramest_funcs as pest
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
@@ -7,7 +7,6 @@ import pandas as pd
 import tikzplotlib
 import numpy as np
 from SIR_basic_data import X
-import paramest_funcs as paramest
 
 gamma = 1 / 9  # predifed gamma
 
@@ -21,7 +20,7 @@ t2 = t1 + dt.timedelta(days=sim_days)
 # find optimal beta
 c1 = time.process_time()
 
-beta_opt = paramest.estimate_beta_simple(
+beta_opt = pest.estimate_beta_simple(
     X_0=X.loc[t1],
     t1=t1,
     t2=t2,
@@ -85,7 +84,7 @@ t2 = t1 + dt.timedelta(days=sim_days)
 gamma = 1/9
 N = 5800000
 
-betas = pestbeta.beta_over_time_simple(
+betas = pest.beta_over_time_simple(
         t1 = t1,
         t2 = t2,
         overshoot = dt.timedelta(days = 7),
@@ -140,7 +139,37 @@ ax2.set_ylabel("Beta")
 ax2.legend("Infected")
 plt.show()
 
-#%% 
+#%% Varying parameters: Expanded model
+import Data_prep_4_expanded as dp4e
+import paramest_funcs as pest
 
+# Specify period and overshoot
+start_day = '2020-12-01'  # start day
+simdays = 150
+overshoot = 10
+
+t0 = pd.to_datetime(start_day)
+overshoot = dt.timedelta(days=overshoot)
+
+mp = [1/9, 1/7, 1/16, 1/5]
+
+# Load data
+data = dp4e.Create_dataframe(
+    Gamma1=mp[0],
+    Gamma2=mp[1],
+    forecast=False
+)
+
+
+opt_params = pest.params_over_time_expanded_LA(
+    t1=t0,
+    t2=t0 + dt.timedelta(days=simdays),
+    overshoot=overshoot,
+    data=data,
+    mp=mp
+)
+
+plt.plot(opt_params.transpose())
+plt.show()
 
 
