@@ -14,10 +14,11 @@ import numpy as np
 import Data_prep_4_expanded as Data
 
 
+N = 5800000
 Gamma1 = 1/9
 Gamma2 = 1/7
 Gamma3 = 1/16
-t0 = pd.to_datetime('2020-08-01')
+t0 = pd.to_datetime('2021-02-20')
 sim_days = 21
 t1 = t0 + dt.timedelta(days=sim_days)
 
@@ -25,7 +26,7 @@ X = Data.Create_dataframe(Gamma1 = Gamma1,
                      Gamma2 = Gamma2, 
                      t0 = t0, 
                      sim_days = sim_days, 
-                     forecast = False)
+                     forecast = True)
 
 
 #estimate theta
@@ -53,8 +54,17 @@ phi1 = phi1s.mean()
 taus = dI2 = np.array(X['R2'][t0+dt.timedelta(days=1):t1])-np.array(X['R2'][t0:t0 + dt.timedelta(days=sim_days-2)])
 tau = taus.mean()
 
+#estimate betas
+dS = np.array(X['S'][t0+dt.timedelta(days=1):t1])-np.array(X['S'][t0:t0 + dt.timedelta(days=sim_days-2)])
+S = np.array(X['S'][t0:t0 + dt.timedelta(days=sim_days-2)])
+R1 = np.array(X['R1'][t0:t0 + dt.timedelta(days=sim_days-2)])
+dI1 = np.array(X['I1'][t0+dt.timedelta(days=1):t1])-np.array(X['I1'][t0:t0 + dt.timedelta(days=sim_days-2)])
+
+betas = -(dS/S+tau/(S+I1+R1))*N/I1
+
 #parameters expanded model w.o beta
 mp_nobeta = [Gamma1,Gamma2,Gamma3,tau, theta, phi1, phi2]
+
 
 
 # =============================================================================

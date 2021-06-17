@@ -29,7 +29,7 @@ def estimate_beta_simple(
     best_beta = 0
 
     # Get relevant data
-    real_data = np.transpose(data.loc[t1:t2].to_numpy())
+    real_data = data.loc[t1:t2].to_numpy()
 
     for k in range(precision):
         for beta in np.linspace(best_beta - 1 / (10 ** k), best_beta + 1 / (10 ** k), 21):
@@ -63,7 +63,7 @@ def beta_over_time_simple(
     simdays = (t2 - t1).days + 1
     betas = np.zeros(simdays)
 
-    for k in range(simdays):
+    for k in tqdm(range(simdays)):
         betas[k] = estimate_beta_simple(
             X_0=data.loc[t1 - overshoot + dt.timedelta(days=k)].to_numpy(copy=True),
             t1=t1 + dt.timedelta(days=k) - overshoot,
@@ -143,62 +143,58 @@ def params_over_time_expanded(
         print(params[:, 0:k+1])
 
     return params
-"""
 
-# Specify period and overshoot
-start_day = '2020-12-01'  # start day
-simdays = 45
-overshoot = 10
-
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
-
-# Load data
-data = dp4e.Create_dataframe(
-    Gamma1=1 / 9,
-    Gamma2=1 / 14,
-    s2=t0,
-    sim_days=100,
-    forecast=False
-)
+def estimate_params_expanded_LA(
+        X_0: np.array,
+        t1: dt.date,  # Start
+        t2: dt.date,  # Stop
+        X: pd.core.frame.DataFrame,
+        mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        precision: int = 5
+):
+    N = 5800000
+    simdays = (t2 - t1).days + 1
+    params = np.zeros((4, simdays))
 
 
-A = data['I3'][t0 : t0 + dt.timedelta(days=5)]
-B = data['I3'][t0 + dt.timedelta(days=2) : t0 + dt.timedelta(days=2) + dt.timedelta(days=5)]
-
-print(A)
-print(B)
-print(pd.concat([A, B], axis=1).fillna(0))
-exit()
-
-# dead = np.transpose(gd.infect_dict['Deaths_over_time'][t0 : t0 + dt.timedelta(days=45)].to_numpy())
-# ICU = data['I3'][t0 : t0 + dt.timedelta(days=45)].to_numpy()
-#
-# print(np.transpose(dead/ICU).mean())
-#
-# plt.plot(np.transpose(dead/ICU))
-# plt.show()
-
-
-mp = [1/9, 1/7, 1/16, 1/5]
-
-# opt_params = estimate_params_expanded(
-#         X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
-#         t1=t0 - overshoot,  # Start
-#         t2=t0 + overshoot,  # Stop
-#         data=data,
-#         mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
-#         precision=5
+# =============================================================================
+# 
+# # Specify period and overshoot
+# start_day = '2021-01-31'  # start day
+# simdays = 45
+# overshoot = 10
+# 
+# t0 = pd.to_datetime(start_day)
+# overshoot = dt.timedelta(days=overshoot)
+# 
+# # Load data
+# data = dp4e.Create_dataframe(
+#     Gamma1=1/9,
+#     Gamma2=1/14,
+#     t0=t0,
+#     sim_days=100,
+#     forecast=False
 # )
-
-# Search for best values of beta, phi1 and phi2
-opt_params = params_over_time_expanded(
-    t1=t0,
-    t2=t0 + dt.timedelta(days=simdays),
-    overshoot=overshoot,
-    data=data,
-    mp=mp
-)
-
-print(opt_params)
-"""
+# 
+# mp = [1/9, 1/7, 1/16, 1/5]
+# 
+# # opt_params = estimate_params_expanded(
+# #         X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+# #         t1=t0 - overshoot,  # Start
+# #         t2=t0 + overshoot,  # Stop
+# #         data=data,
+# #         mp=mp,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+# #         precision=5
+# # )
+# 
+# # Search for best values of beta, phi1 and phi2
+# opt_params = params_over_time_expanded(
+#     t1=t0,
+#     t2=t0 + dt.timedelta(days=simdays),
+#     overshoot=overshoot,
+#     data=data,
+#     mp=mp
+# )
+# 
+# print(opt_params)
+# =============================================================================

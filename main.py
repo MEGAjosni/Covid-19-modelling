@@ -1,6 +1,5 @@
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pestbeta
-import get_data as gd
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
@@ -21,6 +20,7 @@ t2 = t1 + dt.timedelta(days=sim_days)
 
 # find optimal beta
 c1 = time.process_time()
+
 beta_opt = paramest.estimate_beta_simple(
     X_0=X.loc[t1],
     t1=t1,
@@ -30,6 +30,7 @@ beta_opt = paramest.estimate_beta_simple(
     precision=5
 )
 
+beta_opt = 0.17
 # Simulate optimal solution
 mp = [beta_opt, gamma]
 
@@ -71,10 +72,18 @@ tikzplotlib.save('test.tex')
 plt.show()
 
 # %% Variying beta
+from SIR_basic_data import X
+
+# start of simulation
+t1 = pd.to_datetime('2020-12-01')
+# number of days to simulate over
+sim_days = 80
+# end of simulation
+t2 = t1 + dt.timedelta(days=sim_days)
 
 
 gamma = 1/9
-
+N = 5800000
 
 betas = pestbeta.beta_over_time_simple(
         t1 = t1,
@@ -85,18 +94,53 @@ betas = pestbeta.beta_over_time_simple(
 )
 
 
+
+dS = np.array(X['S'][t1+dt.timedelta(days=1):t1+dt.timedelta(days=sim_days-1)])-np.array(X['S'][t1:t1 + dt.timedelta(days=sim_days-2)])
+S = np.array(X['S'][t1:t1 + dt.timedelta(days=sim_days-2)])
+I = np.array(X['I'][t1:t1 + dt.timedelta(days=sim_days-2)])
+
+
+betas_calc = -dS*N/(S*I)
+betas_calc_avg = []
+betas_calc_ls = []
+for i in range(len(betas_calc)):
+    if i > 7 and i < len(betas_calc)-7:
+        betas_calc_avg.append((betas_calc[i-7:i+7]).mean())
+        A = (-S*I/N)[i-7:i+7]
+        b = dS[i-7:i+7]
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
+    elif i < 7:
+        betas_calc_avg.append((betas_calc[0:i+7]).mean())
+        A = (-S*I/N)[0:i+7]
+        b = dS[0:i+7]
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
+    elif i > len(betas_calc)-7:
+        betas_calc_avg.append((betas_calc[i-7:-1]).mean())
+        A = (-S*I/N)[i-7:-1]
+        b = dS[i-7:-1]
+        betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
+        
+
+T = list(range(sim_days + 1))
 # Plot optimal solution
 fig, ax = plt.subplots()
 ax2 = ax.twinx()
+ax.plot(T, betas.transpose(), c = "b")
+T2 = list(range(sim_days -3))
+ax.plot(T2, np.array(betas_calc_avg).transpose(), c = "g")
+ax.plot(T2, np.array(betas_calc_ls).transpose(), c = "r")
 
-ax.plot(T, betas)
-ax2.plot(T, np.asarray(X["I"][t1:t2]))
+ax2.plot(T, np.asarray(X["I"][t1:t2]), c = "tab:orange")
 
 plt.title("Simulation varying beta")
-plt.legend(["Beta", "Infected"])
-ax.xlabel("time")
+ax.legend(["Beta"])
+ax.set_xlabel("time")
 ax.set_ylabel("Number of people")
 ax2.set_ylabel("Beta")
+ax2.legend("Infected")
 plt.show()
 
 #%% 
+
+
+

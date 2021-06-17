@@ -16,11 +16,9 @@ from tqdm import tqdm
 
 
 def Create_dataframe(
-        Gamma1: float, #fracton, rate of recovery from infection
-        Gamma2: float, #fraction, rate of recovery from hospitalization
-        t0: dt.date, #date, Start of simulation
-        sim_days: int, #int, number of days of simulation
-        forecast: bool #boolean,
+        Gamma1: float = 1/9,  # Fraction, rate of recovery from infection
+        Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
+        forecast: bool = False
 ) -> pd.core.frame.DataFrame:
     # ***** Description *****
     #
@@ -39,12 +37,17 @@ def Create_dataframe(
     # ***** End *****
 
     # Load data
-    s1 = pd.to_datetime('2020-01-27')  # start of data
 
-    data_dir = os.getcwd() + '\\data\\vaccinationsdata-dashboard-covid19-10062021-fii5\\Vaccine_DB\\FaerdigVacc_daekning_DK_prdag.csv'
+    # Define dates
+    t0 = pd.to_datetime('2020-01-27')  # Pandemic start
+    t1 = pd.to_datetime('2021-05-31')  # Newest data
 
-    mat = scipy.io.loadmat('data/Inter_data.mat')  # 1st observation march 11 2020
-    Activated_vaccines = np.loadtxt('vac_data_kalender_14_04_2021.csv')  # 1st observation jan 4th 2021
+    # *****************
+    # >>> Load data <<<
+    # *****************
+
+    # *** This has wierd data ***
+    Activated_vaccines = pd.read_csv('vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
 
     infect_keys = list(gd.infect_dict.keys())
     # >>>  infect_keys indices  <<<
@@ -64,39 +67,35 @@ def Create_dataframe(
     # [13] Test_pos_over_time_antigen,
     # [14] Test_regioner
 
-    Data_Infected = gd.infect_dict[infect_keys[12]][s1: t0 + dt.timedelta(days=sim_days)]
-    Data_Dead = gd.infect_dict[infect_keys[3]][s1: t0 + dt.timedelta(days=sim_days)]
-    Data_Hospitalized = gd.infect_dict[infect_keys[7]][s1: t0 + dt.timedelta(days=sim_days)]
-    # manual "get_data" for updated vaccination data
-    Data_Vaccinated = pd.read_csv(filepath_or_buffer=data_dir, sep=',', thousands='.', decimal=',',
-                                  engine='python')  # [s1 : t0 + dt.timedelta(days=sim_days)]
-    date_name = Data_Vaccinated.columns[0]
+    vaccine_keys = list(gd.vaccine_dict.keys())
+    # >>> vaccine_keys indices <<<
+    # [0]  FaerdigVacc_daekning_DK_prdag
+    # [1]  FaerdigVacc_kommune_dag
+    # [2]  FaerdigVacc_region_dag
+    # [3]  FoersteVacc_kommune_dag
+    # [4]  FoersteVacc_region_dag
+    # [5]  Noegletal_kommunale_daily
+    # [6]  Noegletal_regionale_daily
+    # [7]  PaabegVacc_daek_DK_prdag
+    # [8]  Vaccinationer_kommuner_befolk
+    # [9]  Vaccinationer_regioner_befolk
+    # [10] Vaccinationer_region_aldgrp_koen
+    # [11] Vaccinationsdaekning_kommune
+    # [12] Vaccinationsdaekning_nationalt
+    # [13] Vaccinationsdaekning_region
+    # [14] Vaccinationstyper_regioner
+    # [15] Vaccinations_Daekning_region_pr_dag
 
-    # If data is dateindexed convert to datetime64[ns]
+    # Load data
 
-    format1 = sum([str(Data_Vaccinated[date_name][0])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
+    Data_Infected = (gd.infect_dict[infect_keys[12]]['NewPositive'][t0: t1] +
+                    gd.infect_dict[infect_keys[13]]['NewPositive'][t0: t1]).fillna(0)
+    Data_Dead = gd.infect_dict[infect_keys[3]][t0: t1]
+    Data_Hospitalized = gd.infect_dict[infect_keys[7]][t0: t1]
+    Data_Vaccinated = gd.vaccine_dict[vaccine_keys[0]]
 
-    # Remove totals from bottom
-    j = len(Data_Vaccinated[date_name]) - 1
-    while True:
-        if len(str(Data_Vaccinated[date_name][j])) == 10:
-
-            format1 = sum([str(Data_Vaccinated[date_name][j])[i] == 'yyyy-mm-dd'[i] for i in range(10)]) == 2
-
-            if format1:
-                break
-        else:
-            Data_Vaccinated = Data_Vaccinated.drop(index=[j])
-        j += -1
-
-    Data_Vaccinated[date_name] = pd.to_datetime(Data_Vaccinated[date_name], dayfirst=True)
-    Data_Vaccinated = Data_Vaccinated.set_index(pd.DatetimeIndex(Data_Vaccinated[date_name]))
-
-    # As list is now indexed with dates, get rid of the datecolumn
-    Data_Vaccinated = Data_Vaccinated.drop(columns=[date_name])
-
-    vaccine_keys = list(Data_Vaccinated.keys())
-    # >>>  vaccine_keys indices  <<<
+    DK_vaccine_keys = list(Data_Vaccinated.keys())
+    # >>>  DK_vaccine_keys indices  <<<
     # [0]  geo,
     # [1]  Antal færdigvacc. personer,
     # [2]  Antal borgere,
@@ -104,55 +103,47 @@ def Create_dataframe(
     # [4]  Kumuleret antal færdigvacc.
 
     # Offsets:
-    ICU_RESP_Offset = np.zeros(int((pd.to_datetime('2020-03-11') - s1).days))
-    VAC_Offset_Forecast = np.zeros(int((pd.to_datetime('2021-01-04') - s1).days))
-    VAC_Offset_Empirical = np.zeros(int((pd.to_datetime('2021-01-15') - s1).days))
-    DEAD_Offset = np.zeros(int((pd.to_datetime('2020-03-11') - s1).days))
-    HOSPITAL_Offset = np.zeros(int((pd.to_datetime('2020-03-01') - s1).days))
 
-    # Initialize data lists
-    N = 5813298
-    S = [N]
-    I1 = []
-    I2 = list(HOSPITAL_Offset)
-    I3 = np.concatenate((ICU_RESP_Offset, mat['All_Data'][:, 0]), axis=0)
-    I3 = list(I3[0:((t0 - s1).days + sim_days)])
-    R1 = []
-    X = []
-    if forecast:
-        R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
-        R2 = list(R2[0:((t0 - s1).days + sim_days)])
-    if not forecast:
-        R2 = list(np.concatenate((VAC_Offset_Empirical, Data_Vaccinated[vaccine_keys[1]]), axis=0))
-    R3 = list(DEAD_Offset)
+    mat = scipy.io.loadmat('data/Inter_data.mat')  # 1st observation march 11 2020
+    ICU_RESP = pd.DataFrame(data=mat['All_Data'][:, 0], index=pd.date_range(start='2020-03-11', periods=len(mat['All_Data'][:, 0])),
+               columns=['Resp']).astype(int)
 
-    # Some variables need transformation/calculation
-    for i in range((t0 - s1).days + sim_days):
-        
-        # create R3
-        if i > len(DEAD_Offset) - 1:
-            key = Data_Dead.keys()[0]
-            R3.append(R3[i - 1] + Data_Dead[key][i - len(DEAD_Offset)])
 
-        # create I2
-        if i > len(HOSPITAL_Offset) - 1:
-            I2.append(sum(Data_Hospitalized['Total'][i - int(Gamma2 ** (-1)):i]))
-        # create I1
-        if i < int(Gamma1 ** (-1)):
-            I1.append(sum(Data_Infected['NewPositive'][0:i]))
+    # Define a timedelta of 1 day
+    td1 = dt.timedelta(days=1)
+
+    # ******************************************
+    # >>> Create dataframe with state values <<<
+    # ******************************************
+
+    # Initialize DataFrame
+    dates = pd.date_range(start=t0, end=t1)
+    X = pd.DataFrame(data=0, index=dates, columns=['S', 'I1', 'I2', 'I3', 'R1', 'R2', 'R3'])
+    N = 5800000  # DK population
+    X['S'][t0] = N
+
+    # Fill in state values
+    for day in dates:
+        if forecast:
+            # *** This does not work atm ***
+            R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
+            R2 = list(R2[0:((t0 - t1).days + sim_days)])
         else:
-            I1.append(sum(Data_Infected['NewPositive'][i - int(Gamma1 ** (-1)):i])-I2[i])
-        # create S # first let S be equal to N, then subsequently let S be equal to s_-1 plus
-        if i != 0:
-            # First determine how big S is out of vaccinatable population.
-            v_pop = N - I2[i - 1] - I3[i - 1] - R2[i - 1] - R3[i - 1]
-            # NOTE MAYBE ADJUST HERE
-            temp = S[i - 1] - Data_Infected['NewPositive'][i] - (R2[i - 1] * (S[i - 1] / v_pop))
-            S.append(temp)
+            X['R2'][day] = sum(Data_Vaccinated[DK_vaccine_keys[1]][day: day])
 
-        R1.append(N - S[i] - R2[i] - R3[i] - I1[i] - I2[i] - I3[i])
-        X.append([S[i], I1[i], I2[i], I3[i], R1[i], R2[i], R3[i]])
+        X['I3'][day] = sum(ICU_RESP['Resp'][day: day])
 
-    datelist = pd.date_range(s1, periods=(t0 - s1).days + sim_days).tolist()
-    X = pd.DataFrame(X, columns=['S', 'I1', 'I2', 'I3', 'R1', 'R2', 'R3'], index=datelist)
+        v_pop = N - X['I2'][day] - X['I3'][day] - X['R2'][day] - X['R3'][day]
+        X['S'][day + td1] = X['S'][day] - \
+                            sum(Data_Infected[day + td1: day + td1]) - \
+                            X['R2'][day] * X['S'][day] / v_pop
+
+        X['I2'][day] = sum(Data_Hospitalized['Total'][day - dt.timedelta(days=int(1 / Gamma2)): day])
+        X['I1'][day] = sum(Data_Infected[day - dt.timedelta(days=int(1 / Gamma1)): day]) - X['I2'][day]
+        X['R3'][day] = sum(Data_Dead[Data_Dead.keys()[0]][t0: day])
+
+    X['R1'] = N - (X['S'] + X['R2'] + X['R3'] + X['I1'] + X['I2'] + X['I3'])
+
     return X
+
+print(Create_dataframe())
