@@ -81,25 +81,27 @@ def RK4(
     return X_kp1
 
 
-def PID_cont(X, mp, e_total, e_prev, K):
+def PID_cont(X, beta_prev, e_total, e_prev, K):
     I3_hat = 322
     e = X[3]-I3_hat
+    print(e)
     e_total = e_total + e
-    PID = -((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev))
+    PID = -((K[0] * e) + (K[1] * e_total) + K[2] * (e - e_prev))
     
         
     # Cant handle large exponents:
     if PID > 35:
-        new_beta = 0.8 * mp[0]
+        new_beta = 0.8 * beta_prev
     elif PID < -35:
-        new_beta = 1.2 * mp[0]
+        new_beta = 1.2 * beta_prev
     else:
-        new_beta = mp[0] * (0.8 + 0.4 / (1 + math.exp(PID)))
+        new_beta = beta_prev * (0.8 + 0.4 / (1 + math.exp(PID)))
+        
     if new_beta < 0:
         new_beta = 0
     if new_beta > 0.25:
         new_beta = 0.25
-    print(PID)
+    print("PID: ", PID, "Beta: ",new_beta)
     return new_beta, e, e_total,
 
 
@@ -146,15 +148,23 @@ def simulateSIR_PID(
     e = 0
     error_vals = [0]
     beta_vals = [beta_initial]
+    
     for i in range(0,int(simtime / stepsize)):
         new_beta = 0
+        
         if i % 70 == 0: # only update beta every 7 days (10*i = one day)
             j = int(i/70)
+            
             if i == 0:
-                new_beta, e, e_total = PID_cont(X_0,[beta_initial]+mp, e_total, 0, K)
+                new_beta, e, e_total = PID_cont(X_0,beta_initial, e_total, 0, K)
             else:
-                new_beta, e, e_total = PID_cont(SIR[j-1],[beta_vals[j-1]]+mp, e_total, error_vals[j-1], K)
+                new_beta, e, e_total = PID_cont(SIR[i-1],beta_vals[j-1], e_total, error_vals[j-1], K)
+            
+            if e > 0:
+                break
             error_vals.append(e)
+            
+            
             beta_vals.append(new_beta)
         SIR.append(method(SIR[i], [beta_vals[j-1]]+mp, T[i], stepsize))
 

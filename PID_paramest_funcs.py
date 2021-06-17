@@ -50,7 +50,7 @@ def estimate_params_expanded_PID(
                     
                 )
 
-                if max(error_vals) < 0:
+                if max(State_vec[:][3]) < 322:
                     if sum(beta_vals)/len(beta_vals) > best_beta_avg:
                         best_params = params
                         best_beta_avg = sum(beta_vals)/len(beta_vals)
@@ -70,7 +70,7 @@ beta,phi1,phi2 = [0.17, 0.02, 0.09]
 gamma1 = 1/9
 gamma2 = 1/7
 gamma3 = 1/16
-theta = 1/5
+theta = 0.09
 
 
 t0 = pd.to_datetime(start_day)
@@ -106,7 +106,7 @@ t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     mp=mp,
                     T = T,
                     #K = opt_params,
-                    K = [1000,1,-100],
+                    K = [-10,-1,-100],
                     beta_initial = beta,
                     simtime=simdays,
                     stepsize=0.1,
@@ -119,5 +119,5 @@ for i in range(len(t)):
     
 plt.plot(t,ICU,t,np.ones(len(State_vec))*322)
 plt.show
-plt.plot(range(len(beta_vals)),beta_vals)
+#plt.plot(range(len(beta_vals)),beta_vals)
 plt.show
