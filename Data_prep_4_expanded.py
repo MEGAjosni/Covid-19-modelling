@@ -86,8 +86,6 @@ def Create_dataframe(
     # [15] Vaccinations_Daekning_region_pr_dag
 
     # Load data
-    
-    print(gd.infect_dict[infect_keys[12]])
     Data_Infected = (gd.infect_dict["Test_pos_over_time"]["NewPositive"][t0: t1] +
                     gd.infect_dict["Test_pos_over_time_antigen"]["NewPositive"][t0: t1]).fillna(0)
     Data_Dead = gd.infect_dict[infect_keys[3]][t0: t1]

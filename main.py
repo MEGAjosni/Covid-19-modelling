@@ -1,3 +1,4 @@
+"""
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
 import matplotlib.pyplot as plt
@@ -138,6 +139,7 @@ ax.set_ylabel("Number of people")
 ax2.set_ylabel("Beta")
 ax2.legend("Infected")
 plt.show()
+"""
 
 #%% Varying parameters: Expanded model
 import Data_prep_4_expanded as dp4e
@@ -169,7 +171,6 @@ data = dp4e.Create_dataframe(
     forecast=False
 )
 
-
 opt_params = pest.params_over_time_expanded_LA(
     t1=t0,
     t2=t0 + dt.timedelta(days=simdays),
@@ -177,6 +178,11 @@ opt_params = pest.params_over_time_expanded_LA(
     data=data,
     mp=mp
 )
+
+plt.plot(np.transpose(opt_params))
+plt.legend(['beta', 'phi_1', 'phi_2', 'theta'])
+plt.show()
+
 beta,phi1,phi2,theta = opt_params.mean(axis=1)
 
 mp = [beta]+mp+[phi1,phi2,theta]
