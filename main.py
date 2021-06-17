@@ -145,7 +145,7 @@ import paramest_funcs as pest
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-simdays = 150
+simdays = 1
 overshoot = 10
 
 t0 = pd.to_datetime(start_day)
