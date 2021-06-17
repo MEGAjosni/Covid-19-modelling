@@ -18,7 +18,7 @@ import Data_prep_4_expanded as dp4e
 # Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 100
+simdays = 70
 overshoot = 0
 beta,phi1,phi2 = [0.17, 0.02, 0.09]
 gamma1 = 1/9
@@ -48,23 +48,36 @@ for i in range(len(data['R2'])):
 
 
 #%%
-t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
+t, State_vec_PID ,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
                     mp=mp,
                     T = T,
                     #K = opt_params,
-                    K = [0.100,-0.0100,-0.01000],
+                    K = [-0.001,-0.0001,-0.002],
                     beta_initial = beta,
                     simtime=simdays,
                     stepsize=0.1,
                     method=e_ivp.RK4   
                 )
+
+t,SIR=e_ivp.simulateSIR(
+    X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
+    mp=[beta]+mp,
+    T = T,
+    simtime=simdays,
+    stepsize=0.1,
+    method=e_ivp.RK4 
+    
+    )
+
 # generate ICU data vector
+ICU_PID = []
 ICU = []
 for i in range(len(t)):
-    ICU.append(State_vec[i][3])
+    ICU_PID.append(State_vec_PID[i][3])
+    ICU.append(SIR[i][3])
     
-plt.plot(t,ICU,t,np.ones(len(State_vec))*322)
+plt.plot(t,ICU_PID,t,ICU,t,np.ones(len(State_vec_PID))*322)
 plt.show
 #plt.plot(range(len(beta_vals)),beta_vals)
 plt.show

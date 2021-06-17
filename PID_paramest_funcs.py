@@ -32,9 +32,9 @@ def estimate_params_expanded_PID(
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
-            Kp = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
-            Ki = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
-            Kd = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
+            Kp = np.linspace(best_params[0] - 0.001 / (10 ** k), best_params[0] + 0.001 / (10 ** k), 21)
+            Ki = np.linspace(best_params[1] - 0.0001 / (10 ** k), best_params[1] + 0.0001 / (10 ** k), 21)
+            Kd = np.linspace(best_params[2] - 0.001 / (10 ** k), best_params[2] + 0.001 / (10 ** k), 21)
     
             for comb in itertools.product(Kp,Ki,Kd):
                 params = list(comb)
@@ -51,6 +51,7 @@ def estimate_params_expanded_PID(
                 )
 
                 if max(State_vec[:][3]) < 322:
+
                     if sum(beta_vals)/len(beta_vals) > best_beta_avg:
                         best_params = params
                         best_beta_avg = sum(beta_vals)/len(beta_vals)
@@ -105,8 +106,8 @@ t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     X_0=data.loc[t0 - overshoot].to_numpy(copy=True),
                     mp=mp,
                     T = T,
-                    #K = opt_params,
-                    K = [-10,-1,-100],
+                    K = opt_params,
+                    #K = [-10,-1,-100],
                     beta_initial = beta,
                     simtime=simdays,
                     stepsize=0.1,
