@@ -82,7 +82,7 @@ def RK4(
 
 
 def PID_cont(X, mp, e_total, e_prev, K):
-    I3_hat = 322/2
+    I3_hat = 322
     e = X[3]-I3_hat
     e_total = e_total + e
     PID = -((K[0] * e) + K[1] * e_total + K[2] * (e - e_prev))
@@ -99,8 +99,8 @@ def PID_cont(X, mp, e_total, e_prev, K):
         new_beta = 0
     if new_beta > 0.25:
         new_beta = 0.25
-
-    return new_beta, e, e_total
+    print(PID)
+    return new_beta, e, e_total,
 
 
 
@@ -156,7 +156,7 @@ def simulateSIR_PID(
                 new_beta, e, e_total = PID_cont(SIR[j-1],[beta_vals[j-1]]+mp, e_total, error_vals[j-1], K)
             error_vals.append(e)
             beta_vals.append(new_beta)
-        SIR.append(method(SIR[i], [new_beta]+mp, T[i], stepsize))
+        SIR.append(method(SIR[i], [beta_vals[j-1]]+mp, T[i], stepsize))
 
     return t, SIR, beta_vals, error_vals
 
