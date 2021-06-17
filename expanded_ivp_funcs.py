@@ -134,7 +134,7 @@ def simulateSIR(
     t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
 
     for i in range(int(simtime / stepsize)):
-        SIR.append(method(SIR[i], mp, T[i], stepsize))
+        SIR.append(method(SIR[i], mp, T[int(i*stepsize)], stepsize))
 
     return t, np.array(SIR)
 

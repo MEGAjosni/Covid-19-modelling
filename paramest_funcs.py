@@ -173,35 +173,47 @@ def estimate_params_expanded_LA(
         t1: dt.date,  # Start
         t2: dt.date,  # Stop
         data: pd.core.frame.DataFrame,
-        mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        mp: list,  # Known model parameters [gamma1, gamma2, gamma3]
         precision: int = 5
 ):
     N = 5800000
     simdays = (t2 - t1).days + 1
-    
+
+    dX = data[['S', 'I1', 'I2', 'I3', 'R3']][t1:t2].to_numpy() - data[['S', 'I1', 'I2', 'I3', 'R3']][t1-dt.timedelta(days=1): t2-dt.timedelta(days=1)].to_numpy()
+    dX_norms = np.linalg.norm(dX, axis=0)
+
     for k in range(simdays):
         dxt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)])-np.array(data.loc[t1+dt.timedelta(days=k-1):t1+dt.timedelta(days=k-1)]))[0]
         xt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)]))[0]
         # xt = [S I1 I2 I3 R1 R2 R3]
-        
-        A = np.array([[-xt[1]*xt[0]/N,0,0,0],
-                      [0,xt[1],-xt[2],0],
-                      [0,xt[1],-xt[2],0],
-                      [0,0,xt[2],-xt[3]],
-                      [0,0,0,xt[3]]])
-        
-        b = np.array([dxt[0]+dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),
-                      dxt[1]+dxt[5]*xt[1]/(xt[0]+xt[1]+xt[4]+xt[1]*mp[0]),
-                      dxt[2]+mp[1]*xt[2],
-                      dxt[3]+mp[2]*xt[3],
-                      dxt[6]])
+
+        A = np.array(
+            [
+                [-xt[1]*xt[0]/N,    0,      0,      0],
+                [xt[0]*xt[1]/N,     -xt[1], 0,      0],
+                [0,                 xt[1],  -xt[2], 0],
+                [0,                 0,      xt[2],  -xt[3]],
+                [0,                 0,      0,      xt[3]]
+            ]
+        ) / np.transpose(dX_norms)[:, None]
+
+        b = np.array(
+            [
+                dxt[0] + dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),
+                dxt[1] + xt[1]*mp[0] + xt[1]*dxt[5]/(xt[0]+xt[1]+xt[4]),
+                dxt[2] + mp[1]*xt[2],
+                dxt[3] + mp[2]*xt[3],
+                dxt[6]
+            ]
+        ) / dX_norms
+
         if k == 0:
             As = A
             bs = b
         else:
             As = np.concatenate([As,A],axis = 0)
             bs = np.concatenate([bs,b])
-    
+
     beta,phi1,phi2,theta = np.linalg.lstsq(As, bs, rcond=None)[0]
     mp2 = [beta, phi1, phi2, theta]
     return mp2
@@ -226,6 +238,6 @@ def params_over_time_expanded_LA(
             mp=mp,
             precision=3
         )
-        print(params[:, 0:k+1])
+        # print(params[:, 0:k+1])
 
     return params

@@ -1,3 +1,4 @@
+"""
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
 import matplotlib.pyplot as plt
@@ -118,7 +119,7 @@ for i in range(len(betas_calc)):
         A = (-S*I/N)[i-7:-1]
         b = dS[i-7:-1]
         betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
-        
+
 
 T = list(range(sim_days + 1))
 # Plot optimal solution
@@ -138,11 +139,13 @@ ax.set_ylabel("Number of people")
 ax2.set_ylabel("Beta")
 ax2.legend("Infected")
 plt.show()
+"""
 
 #%% Varying parameters: Expanded model
 import Data_prep_4_expanded as dp4e
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
+import expanded_ivp_funcs as e_ivp
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
@@ -153,13 +156,13 @@ import numpy as np
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-simdays = 1
+simdays = 21
 overshoot = 10
 
 t0 = pd.to_datetime(start_day)
 overshoot = dt.timedelta(days=overshoot)
 
-mp = [1/9, 1/7, 1/16, 1/5]
+mp = [1/9, 1/7, 1/16]
 
 # Load data
 data = dp4e.Create_dataframe(
@@ -167,7 +170,6 @@ data = dp4e.Create_dataframe(
     Gamma2=mp[1],
     forecast=False
 )
-
 
 opt_params = pest.params_over_time_expanded_LA(
     t1=t0,
@@ -177,7 +179,23 @@ opt_params = pest.params_over_time_expanded_LA(
     mp=mp
 )
 
-plt.plot(opt_params.transpose())
+plt.plot(np.transpose(opt_params))
+plt.legend(['beta', 'phi_1', 'phi_2', 'theta'])
 plt.show()
 
+beta,phi1,phi2,theta = opt_params.mean(axis=1)
 
+mp = [beta]+mp+[phi1,phi2,theta]
+T = data["R2"][t0:t0 + dt.timedelta(days=simdays)]
+
+t, SIR = e_ivp.simulateSIR(
+    X_0=data.loc[t1],
+    mp=mp,
+    T = T,
+    simtime=sim_days,
+    method=e_ivp.RK4
+)
+
+plt.plot(opt_params.transpose())
+plt.legend([r"\beta", r"\phi_1",r"\phi_2",r"\theta"])
+plt.show()
