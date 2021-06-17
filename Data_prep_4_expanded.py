@@ -125,9 +125,10 @@ def Create_dataframe(
     # Fill in state values
     for day in dates:
         if forecast:
-            # *** This does not work atm ***
-            R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
-            R2 = list(R2[0:((t0 - t1).days + sim_days)])
+            pass
+            # # *** This does not work atm ***
+            # R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
+            # R2 = list(R2[0:((t0 - t1).days + sim_days)])
         else:
             X['R2'][day] = sum(Data_Vaccinated[DK_vaccine_keys[1]][day: day])
 
