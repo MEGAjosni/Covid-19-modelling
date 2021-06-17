@@ -120,31 +120,33 @@ def Create_dataframe(
     dates = pd.date_range(start=t0, end=t1)
     X = pd.DataFrame(data=0, index=dates, columns=['S', 'I1', 'I2', 'I3', 'R1', 'R2', 'R3'])
     N = 5800000  # DK population
+
+    # Initial state
     X['S'][t0] = N
 
     # Fill in state values
-    for day in dates:
+    for day in dates[1:]:
         if forecast:
             pass
             # # *** This does not work atm ***
             # R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
             # R2 = list(R2[0:((t0 - t1).days + sim_days)])
         else:
-            X['R2'][day] = sum(Data_Vaccinated[DK_vaccine_keys[1]][day: day])
+            X['R2'][day] = sum(Data_Vaccinated[DK_vaccine_keys[1]][t0: day])
 
         X['I3'][day] = sum(ICU_RESP['Resp'][day: day])
-
-        v_pop = N - X['I2'][day] - X['I3'][day] - X['R2'][day] - X['R3'][day]
-        X['S'][day + td1] = X['S'][day] - \
-                            sum(Data_Infected[day + td1: day + td1]) - \
-                            X['R2'][day] * X['S'][day] / v_pop
-
-        X['I2'][day] = sum(Data_Hospitalized['Total'][day - dt.timedelta(days=int(1 / Gamma2)): day])
-        X['I1'][day] = sum(Data_Infected[day - dt.timedelta(days=int(1 / Gamma1)): day]) - X['I2'][day]
+        X['I2'][day] = sum(Data_Hospitalized['Total'][day - dt.timedelta(days=int(1 / Gamma2)): day]) - X['I3'][day]
         X['R3'][day] = sum(Data_Dead[Data_Dead.keys()[0]][t0: day])
 
-    X['R1'] = N - (X['S'] + X['R2'] + X['R3'] + X['I1'] + X['I2'] + X['I3'])
+        v_pop = N - X['I2'][day] - X['I3'][day] - X['R2'][day] - X['R3'][day]
+        v_day = X['R2'][day] - X['R2'][day - td1]
+
+        X['I1'][day] = sum(Data_Infected[day - dt.timedelta(days=int(1 / Gamma1)): day]) - X['I2'][day]
+        X['I1'][day] = int(X['I1'][day] * (1 - v_day / v_pop))
+
+        X['S'][day] = X['S'][day - td1] - Data_Infected[day]
+        X['S'][day] = int(X['S'][day] * (1 - v_day / v_pop))
+
+    X['R1'] = N - (X['S'] + X['I1'] + X['I2'] + X['I3'] + X['R2'] + X['R3'])
 
     return X
-
-print(Create_dataframe())
