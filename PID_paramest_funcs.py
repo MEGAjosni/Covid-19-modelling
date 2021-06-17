@@ -80,8 +80,6 @@ overshoot = dt.timedelta(days=overshoot)
 data = dp4e.Create_dataframe(
     Gamma1=gamma1,
     Gamma2=gamma2,
-    t0=t0,
-    sim_days=simdays,
     forecast=False
 )
 
@@ -108,7 +106,7 @@ t, State_vec,beta_vals,error_vals = e_ivp.simulateSIR_PID(
                     mp=mp,
                     T = T,
                     #K = opt_params,
-                    K = [-0000.1,-0000.1,-0.0000000001],
+                    K = [1000,1,-100],
                     beta_initial = beta,
                     simtime=simdays,
                     stepsize=0.1,
