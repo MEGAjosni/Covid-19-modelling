@@ -143,6 +143,7 @@ plt.show()
 import Data_prep_4_expanded as dp4e
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
+import expanded_ivp_funcs as e_ivp
 import matplotlib.pyplot as plt
 import time
 import datetime as dt
@@ -153,13 +154,13 @@ import numpy as np
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-simdays = 150
+simdays = 21
 overshoot = 10
 
 t0 = pd.to_datetime(start_day)
 overshoot = dt.timedelta(days=overshoot)
 
-mp = [1/9, 1/7, 1/16, 1/5]
+mp = [1/9, 1/7, 1/16]
 
 # Load data
 data = dp4e.Create_dataframe(
@@ -176,8 +177,21 @@ opt_params = pest.params_over_time_expanded_LA(
     data=data,
     mp=mp
 )
+beta,phi1,phi2,theta = opt_params.mean(axis=1)
+
+mp = [beta]+mp+[phi1,phi2,theta]
+T = data["R2"][t0:t0 + dt.timedelta(days=simdays)]
+
+t, SIR = e_ivp.simulateSIR(
+    X_0=data.loc[t1],
+    mp=mp,
+    T = T,
+    simtime=sim_days,
+    method=e_ivp.RK4
+)
 
 plt.plot(opt_params.transpose())
+plt.legend([r"\beta", r"\phi_1",r"\phi_2",r"\theta"])
 plt.show()
 
 

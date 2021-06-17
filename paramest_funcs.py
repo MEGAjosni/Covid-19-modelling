@@ -173,7 +173,7 @@ def estimate_params_expanded_LA(
         t1: dt.date,  # Start
         t2: dt.date,  # Stop
         data: pd.core.frame.DataFrame,
-        mp: list,  # Known model parameters [gamma1, gamma2, gamma3, theta]
+        mp: list,  # Known model parameters [gamma1, gamma2, gamma3]
         precision: int = 5
 ):
     N = 5800000
@@ -184,16 +184,16 @@ def estimate_params_expanded_LA(
         xt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)]))[0]
         # xt = [S I1 I2 I3 R1 R2 R3]
         
-        A = np.array([[-xt[1]*xt[0]/N,0,0,0],
-                      [0,xt[1],-xt[2],0],
-                      [0,xt[1],-xt[2],0],
-                      [0,0,xt[2],-xt[3]],
-                      [0,0,0,xt[3]]])
+        A = np.array([[-xt[1]*xt[0]/N,  0,  0,  0],
+                      #[xt[0]*xt[1]/N,   -xt[1],     0,  0],
+                      [0,   xt[1],  -xt[2],     0],
+                      [0,   0,  xt[2],  -xt[3]],
+                      [0    ,   0,  0,  xt[3]]])
         
-        b = np.array([dxt[0]+dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),
-                      dxt[1]+dxt[5]*xt[1]/(xt[0]+xt[1]+xt[4]+xt[1]*mp[0]),
-                      dxt[2]+mp[1]*xt[2],
-                      dxt[3]+mp[2]*xt[3],
+        b = np.array([dxt[0]+ dxt[5]*xt[0]/(xt[0]+xt[1]+xt[4]),
+                      #dxt[1]+ xt[1]*mp[0], #+ xt[1]*dxt[5]/(xt[0]+xt[1]+xt[4]),
+                      dxt[2]+ mp[1]*xt[2],
+                      dxt[3]+ mp[2]*xt[3],
                       dxt[6]])
         if k == 0:
             As = A
