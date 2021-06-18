@@ -85,63 +85,48 @@ def estimate_params_expanded(
         precision: int = 5
 ) -> np.array:
 
-    gamma1, gamma2, gamma3, theta = mp
+    gamma1, gamma2, gamma3, theta, phi1, phi2 = mp
     err_min = math.inf
-    best_params = [0, 0, 0]
+    best_param = 0
 
     # Get relevant data
     real_data = np.transpose(data.loc[t1:t2].to_numpy())
 
     for k in tqdm(range(precision)):
-        beta_vals = np.linspace(best_params[0] - 1 / (10 ** k), best_params[0] + 1 / (10 ** k), 21)
-        phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
-        phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
+        beta_vals = np.linspace(best_param - 1 / (10 ** k), best_param + 1 / (10 ** k), 21)
+        # phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
+        # phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-#<<<<<<< Updated upstream
-        for par in itertools.product(beta_vals, phi1_vals, phi2_vals):
-            params = list(par)
-#=======
-        for k in tqdm(itertools.product(beta_vals, phi1_vals, phi2_vals)):
-            params = list(k
-                          )
-#>>>>>>> Stashed changes
-            if all(i >= 0 for i in params):
+        for par in beta_vals:
+            params = par
+
+            if params >= 0:
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
-                    mp=[params[0], gamma1, gamma2, gamma3, theta, params[1], params[2]],
+                    mp=[params, gamma1, gamma2, gamma3, theta, phi1, phi2],
                     method=e_ivp.RK4,
                     T=np.zeros((t2 - t1).days * 10 + 1),
                     simtime=(t2 - t1).days
                 )
 
                 # Get simulation points corresponding to real data
-                SIR = SIR[:, 0::10]
+                SIR = np.transpose(SIR[0::10, :])
 
-#<<<<<<< Updated upstream
                 # Find and compare error
                 rel_err = np.sum(np.nan_to_num(np.linalg.norm(real_data - SIR, axis=1) / np.linalg.norm(real_data, axis=1), nan=0))
                 if rel_err < err_min:
                     err_min = rel_err
-                    best_params = params
-    return np.round(best_params, decimals=precision)
-#=======
-"""
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
+                    best_param = params
+
+    return np.round(best_param, decimals=precision)
+
 
 # Load data
 data = dp4e.Create_dataframe(
     Gamma1=1/9,
-    Gamma2=1/14,
-    s2=t0,
-    sim_days=100,
+    Gamma2=1/7,
     forecast=False
 )
-
-mp = [1/9, 1/7, 1/16, 1/30]
-#>>>>>>> Stashed changes
-"""
-
 
 
 def params_over_time_expanded(
@@ -167,6 +152,10 @@ def params_over_time_expanded(
         print(params[:, 0:k+1])
 
     return params
+
+
+
+
 
 def estimate_params_expanded_LA(
         X_0: np.array,

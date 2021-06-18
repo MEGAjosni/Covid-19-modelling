@@ -156,7 +156,7 @@ import numpy as np
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-simdays = 21
+simdays = 120
 overshoot = 10
 
 t0 = pd.to_datetime(start_day)
@@ -179,23 +179,16 @@ opt_params = pest.params_over_time_expanded_LA(
     mp=mp
 )
 
-plt.plot(np.transpose(opt_params))
-plt.legend(['beta', 'phi_1', 'phi_2', 'theta'])
-plt.show()
-
-beta,phi1,phi2,theta = opt_params.mean(axis=1)
-
-mp = [beta]+mp+[phi1,phi2,theta]
 T = data["R2"][t0:t0 + dt.timedelta(days=simdays)]
 
 t, SIR = e_ivp.simulateSIR(
-    X_0=data.loc[t1],
-    mp=mp,
+    X_0=data.loc[t0],
+    mp=[0.185, 1/9, 1/7, 1/16, 1/5, 0.0055, 0.03],
     T = T,
-    simtime=sim_days,
+    simtime=simdays,
     method=e_ivp.RK4
 )
 
-plt.plot(opt_params.transpose())
-plt.legend([r"\beta", r"\phi_1",r"\phi_2",r"\theta"])
+plt.plot(t, SIR[:, 6])
+plt.plot(data["R3"][t0:t0 + dt.timedelta(days=simdays)].to_numpy())
 plt.show()
