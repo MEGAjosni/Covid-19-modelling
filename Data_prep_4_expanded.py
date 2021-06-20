@@ -16,8 +16,9 @@ from tqdm import tqdm
 
 
 def Create_dataframe(
-        Gamma1: float = 1/9,  # Fraction, rate of recovery from infection
+        Gamma1: float = 1/5,  # Fraction, rate of recovery from infection
         Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
+        Gamma3: float = 1/21,  # Fraction, rate of recovery from ICU
         forecast: bool = False
 ) -> pd.core.frame.DataFrame:
     # ***** Description *****
@@ -35,7 +36,10 @@ def Create_dataframe(
     #       X : dataframe, Containing [S,I1,I2,I3,R1,R2,R3], indexed by date.
     #
     # ***** End *****
-
+    
+    #Create gammas
+    gammas = [Gamma1,Gamma2, Gamma3]
+    
     # Load data
 
     # Define dates

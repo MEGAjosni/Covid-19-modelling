@@ -140,8 +140,7 @@ ax2.set_ylabel("Beta")
 ax2.legend("Infected")
 plt.show()
 """
-
-#%% Varying parameters: Expanded model
+#%% Expanded model: constant parameters
 import Data_prep_4_expanded as dp4e
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
@@ -156,13 +155,84 @@ import numpy as np
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-simdays = 120
-overshoot = 10
+sim_days = 119
 
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
+t1 = pd.to_datetime(start_day)
 
-mp = [1/9, 1/7, 1/16]
+gammas = [1/9, 1/7, 1/21] #gamma1 gamma2 gamma3
+
+# Load data
+data = dp4e.Create_dataframe(
+    Gamma1=gammas[0],
+    Gamma2=gammas[1],
+    Gamma3=gammas[2],
+    forecast=False
+)
+
+# find optimal parameters
+opt_params = pest.estimate_params_expanded_LA(
+    X_0 = data.loc[t1],
+    t1=t1,
+    t2=t1 + dt.timedelta(days=14),
+    data=data,
+    mp=gammas
+)
+
+mp = np.array([opt_params[0],gammas[0],gammas[1],gammas[2],opt_params[3],opt_params[1],opt_params[2]])
+
+#mp = [0.185,1/9,1/7,1/16,1/5,0.0055,0.03]
+T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
+# Remove vaccinations
+T = np.array(T)*0
+
+
+t, SIR = e_ivp.simulateSIR(
+    X_0=data.loc[t1],
+    mp=mp,
+    T = T,
+    simtime=sim_days,
+    method=e_ivp.RK4
+)
+
+
+t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
+alpha = 0.5
+# Plot optimal solution
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+# plot simulations
+ax.plot(t, np.array(SIR)[0::10, 3], c="g", label="I3 est.")
+ax2.plot(t, np.array(SIR)[0::10, 6], c="r", label="R3 est.")
+ax2.plot(t, np.array(SIR)[0::10, 2], c="tab:orange", label="I2 est.")
+#ax2.plot(t, np.array(SIR)[0::10, 2], c="b", label="R est.")
+plt.title("Simulation using optimal parameters")
+ax.set_xlabel("Date")
+#ax.set_ylabel("Number of susceptible people ")
+ax2.set_ylabel("Number of dead or hospitalized people")
+ax.set_ylabel("Number of people in ICU")
+T = list(range(sim_days + 1))
+
+# Data points
+ax.scatter(T, data['I3'][t1:t1 + dt.timedelta(days=sim_days)], c="g", alpha=alpha, label="I3")
+ax2.scatter(T, data['R3'][t1:t1 + dt.timedelta(days=sim_days)], c="r", alpha=alpha, label="R3")
+ax2.scatter(T, data['I2'][t1:t1 + dt.timedelta(days=sim_days)], c="tab:orange", alpha=alpha, label="I2")
+#ax2.scatter(T, data['R1'][t1:t2], c="b", alpha=alpha, label="R1")
+
+ax.tick_params(axis='x', rotation=45)
+ax.legend(loc="upper left")
+ax2.legend(loc="center right")
+tikzplotlib.save('test.tex')
+tikzplotlib.save('test_expand.tex')
+plt.show()
+
+
+#%% Parameter over time: Expanded model
+# Specify period and overshoot
+start_day = '2020-12-01'  # start day
+sim_days = 119
+
+t1 = pd.to_datetime(start_day)
+
 
 # Load data
 data = dp4e.Create_dataframe(
@@ -171,24 +241,14 @@ data = dp4e.Create_dataframe(
     forecast=False
 )
 
+
+
+# find optimal parameters
 opt_params = pest.params_over_time_expanded_LA(
-    t1=t0,
-    t2=t0 + dt.timedelta(days=simdays),
-    overshoot=overshoot,
+    X_0 = data.loc[t1],
+    t1=t1,
+    t2=t1 + dt.timedelta(days=sim_days),
     data=data,
     mp=mp
 )
 
-T = data["R2"][t0:t0 + dt.timedelta(days=simdays)]
-
-t, SIR = e_ivp.simulateSIR(
-    X_0=data.loc[t0],
-    mp=[0.185, 1/9, 1/7, 1/16, 1/5, 0.0055, 0.03],
-    T = T,
-    simtime=simdays,
-    method=e_ivp.RK4
-)
-
-plt.plot(t, SIR[:, 6])
-plt.plot(data["R3"][t0:t0 + dt.timedelta(days=simdays)].to_numpy())
-plt.show()
