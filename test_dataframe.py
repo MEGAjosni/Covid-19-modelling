@@ -14,14 +14,13 @@ import numpy as np
 
 s2 = pd.to_datetime('2021-01-01')  # start of simulation
 Gamma2 = 1/9
-Gamma1 = 1/9
-sim_days = 100
-forecast = False
+Gamma1 = 1/7
 
 
 
-data = dp4e.Create_dataframe(Gamma1,Gamma2 ,s2, sim_days, forecast)
-T = np.zeros(len(data['R2'])*10)
-for i in range(len(data['R2'])):
-     T[(i*10):(i*10)+10] = data['R2'][i]/10
-    
+
+
+
+data1 = dp4e.Create_dataframe(Gamma1,Gamma2,forecast = True, early = True)
+data2 = dp4e.Create_dataframe(Gamma1,Gamma2,forecast = True, early = False)
+data3 = dp4e.Create_dataframe(Gamma1,Gamma2)

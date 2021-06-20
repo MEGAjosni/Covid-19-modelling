@@ -18,7 +18,8 @@ from tqdm import tqdm
 def Create_dataframe(
         Gamma1: float = 1/9,  # Fraction, rate of recovery from infection
         Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
-        forecast: bool = False
+        forecast: bool = False,
+        early: bool  = True
 ) -> pd.core.frame.DataFrame:
     # ***** Description *****
     #
@@ -47,8 +48,13 @@ def Create_dataframe(
     # *****************
 
     # *** This has wierd data ***
-    Activated_vaccines = pd.read_csv('vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
-
+    if forecast:
+        if early:
+            Activated_vaccines = pd.read_csv('vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
+        else:
+            Activated_vaccines = pd.read_csv('Early_vac_calendar_data.csv', engine='python')  # 1st observation jan 4th 2021
+        
+    
     infect_keys = list(gd.infect_dict.keys())
     # >>>  infect_keys indices  <<<
     # [0]  Antigentests_pr_dag,
@@ -122,13 +128,19 @@ def Create_dataframe(
     # Initial state
     X['S'][t0] = N
 
+    #prepare forecast values
+    if forecast:
+        R2 = np.zeros(len(Activated_vaccines))
+        for i in range(len(Activated_vaccines)):
+            R2[i] = Activated_vaccines['0.000000000000000000e+00'][i]
+        Vacoffset_forecast = np.zeros((pd.to_datetime('2021-01-04')-t0).days)
+        R2 = np.concatenate((Vacoffset_forecast , R2), axis=0)
+        count = 0        
     # Fill in state values
     for day in dates[1:]:
         if forecast:
-            pass
-            # # *** This does not work atm ***
-            # R2 = np.concatenate((VAC_Offset_Forecast, Activated_vaccines), axis=0)
-            # R2 = list(R2[0:((t0 - t1).days + sim_days)])
+            X['R2'][day] = sum(R2[0:count])
+            count +=1
         else:
             X['R2'][day] = sum(Data_Vaccinated[DK_vaccine_keys[1]][t0: day])
 
@@ -144,7 +156,8 @@ def Create_dataframe(
 
         X['S'][day] = X['S'][day - td1] - Data_Infected[day]
         X['S'][day] = int(X['S'][day] * (1 - v_day / v_pop))
-
+        
+        # increment counter
     X['R1'] = N - (X['S'] + X['I1'] + X['I2'] + X['I3'] + X['R2'] + X['R3'])
 
     return X
