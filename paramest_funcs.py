@@ -97,14 +97,9 @@ def estimate_params_expanded(
         phi1_vals = np.linspace(best_params[1] - 1 / (10 ** k), best_params[1] + 1 / (10 ** k), 21)
         phi2_vals = np.linspace(best_params[2] - 1 / (10 ** k), best_params[2] + 1 / (10 ** k), 21)
 
-#<<<<<<< Updated upstream
         for par in itertools.product(beta_vals, phi1_vals, phi2_vals):
             params = list(par)
-#=======
-        for k in tqdm(itertools.product(beta_vals, phi1_vals, phi2_vals)):
-            params = list(k
-                          )
-#>>>>>>> Stashed changes
+
             if all(i >= 0 for i in params):
                 _, SIR = e_ivp.simulateSIR(
                     X_0=X_0,
@@ -125,22 +120,28 @@ def estimate_params_expanded(
                     best_params = params
     return np.round(best_params, decimals=precision)
 #=======
-"""
-t0 = pd.to_datetime(start_day)
-overshoot = dt.timedelta(days=overshoot)
 
 # Load data
 data = dp4e.Create_dataframe(
     Gamma1=1/9,
-    Gamma2=1/14,
-    s2=t0,
-    sim_days=100,
+    Gamma2=1/7,
     forecast=False
 )
 
 mp = [1/9, 1/7, 1/16, 1/30]
+
+
+start_day = '2021-12-01'
+t0 = pd.to_datetime(start_day)
+overshoot = dt.timedelta(days=overshoot)
+
+estimate_params_expanded(
+    X_0=data.loc[start_day],
+    t1=t0 - overshoot
+)
+
 #>>>>>>> Stashed changes
-"""
+
 
 
 
@@ -167,6 +168,10 @@ def params_over_time_expanded(
         print(params[:, 0:k+1])
 
     return params
+
+
+
+
 
 def estimate_params_expanded_LA(
         X_0: np.array,
