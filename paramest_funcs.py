@@ -74,7 +74,7 @@ def beta_over_time_simple(
         )
 
     return betas
-
+"""
 
 def estimate_params_expanded(
         X_0: np.array,
@@ -141,9 +141,9 @@ estimate_params_expanded(
 )
 
 #>>>>>>> Stashed changes
+"""
 
-
-
+"""
 
 def params_over_time_expanded(
         t1: dt.date,
@@ -171,7 +171,7 @@ def params_over_time_expanded(
 
 
 
-
+"""
 
 def estimate_params_expanded_LA(
         X_0: np.array,
@@ -221,7 +221,7 @@ def estimate_params_expanded_LA(
 
     beta,phi1,phi2,theta = np.linalg.lstsq(As, bs, rcond=None)[0]
     mp2 = [beta, phi1, phi2, theta]
-    return mp2
+    return np.array(mp2)
 
 def params_over_time_expanded_LA(
         t1: dt.date,

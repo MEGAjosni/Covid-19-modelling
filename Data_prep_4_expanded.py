@@ -16,7 +16,7 @@ from tqdm import tqdm
 
 
 def Create_dataframe(
-        Gamma1: float = 1/9,  # Fraction, rate of recovery from infection
+        Gamma1: float = 1/5,  # Fraction, rate of recovery from infection
         Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
         forecast: bool = False,
         early: bool  = True
@@ -37,6 +37,9 @@ def Create_dataframe(
     #
     # ***** End *****
 
+    #Create gammas
+    gammas = [Gamma1,Gamma2, Gamma3]
+
     # Load data
 
     # Define dates
@@ -53,8 +56,8 @@ def Create_dataframe(
             Activated_vaccines = pd.read_csv('vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
         else:
             Activated_vaccines = pd.read_csv('Early_vac_calendar_data.csv', engine='python')  # 1st observation jan 4th 2021
-        
-    
+
+
     infect_keys = list(gd.infect_dict.keys())
     # >>>  infect_keys indices  <<<
     # [0]  Antigentests_pr_dag,
@@ -135,7 +138,7 @@ def Create_dataframe(
             R2[i] = Activated_vaccines['0.000000000000000000e+00'][i]
         Vacoffset_forecast = np.zeros((pd.to_datetime('2021-01-04')-t0).days)
         R2 = np.concatenate((Vacoffset_forecast , R2), axis=0)
-        count = 0        
+        count = 0
     # Fill in state values
     for day in dates[1:]:
         if forecast:
@@ -156,7 +159,7 @@ def Create_dataframe(
 
         X['S'][day] = X['S'][day - td1] - Data_Infected[day]
         X['S'][day] = int(X['S'][day] * (1 - v_day / v_pop))
-        
+
         # increment counter
     X['R1'] = N - (X['S'] + X['I1'] + X['I2'] + X['I3'] + X['R2'] + X['R3'])
 
