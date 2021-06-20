@@ -155,7 +155,7 @@ import numpy as np
 
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
-sim_days = 119
+sim_days = 180
 
 t1 = pd.to_datetime(start_day)
 
@@ -165,8 +165,8 @@ gammas = [1/9, 1/7, 1/21] #gamma1 gamma2 gamma3
 data = dp4e.Create_dataframe(
     Gamma1=gammas[0],
     Gamma2=gammas[1],
-    Gamma3=gammas[2],
-    forecast=False
+    Gamma3 = gammas[2],
+    forecast=True
 )
 
 # find optimal parameters
@@ -183,7 +183,7 @@ mp = np.array([opt_params[0],gammas[0],gammas[1],gammas[2],opt_params[3],opt_par
 #mp = [0.185,1/9,1/7,1/16,1/5,0.0055,0.03]
 T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
 # Remove vaccinations
-T = np.array(T)*0
+
 
 
 t, SIR = e_ivp.simulateSIR(
@@ -194,8 +194,18 @@ t, SIR = e_ivp.simulateSIR(
     method=e_ivp.RK4
 )
 
+T = np.array(T)*0
 
-t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
+t, SIR2 = e_ivp.simulateSIR(
+    X_0=data.loc[t1],
+    mp=mp,
+    T = T,
+    simtime=sim_days,
+    method=e_ivp.RK4
+)
+
+"""
+t = pd.date_range(t1, periods=sim_days + 1 ).strftime('%d/%m-%Y')
 alpha = 0.5
 # Plot optimal solution
 fig, ax = plt.subplots()
@@ -207,7 +217,7 @@ ax2.plot(t, np.array(SIR)[0::10, 2], c="tab:orange", label="I2 est.")
 #ax2.plot(t, np.array(SIR)[0::10, 2], c="b", label="R est.")
 plt.title("Simulation using optimal parameters")
 ax.set_xlabel("Date")
-#ax.set_ylabel("Number of susceptible people ")
+#ax.set_ylabel("Number of susce"ptible people ")
 ax2.set_ylabel("Number of dead or hospitalized people")
 ax.set_ylabel("Number of people in ICU")
 T = list(range(sim_days + 1))
@@ -224,7 +234,40 @@ ax2.legend(loc="center right")
 tikzplotlib.save('test.tex')
 tikzplotlib.save('test_expand.tex')
 plt.show()
+"""
+t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
+alpha = 0.5
+# Plot optimal solution
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+# plot simulations
+ax.plot(t, np.array(SIR)[0::10, 3], c="orange", label="I3 est. +")
+ax.plot(t, np.array(SIR2)[0::10, 3], c="tab:orange", label="I3 est. -", alpha = alpha)
+ax2.plot(t, np.array(SIR)[0::10, 6], c="tab:blue", label="R3 est. +")
+ax2.plot(t, np.array(SIR2)[0::10, 6], c="b", label="R3 est. -", alpha = alpha)
+#ax2.plot(t, np.array(SIR)[0::10, 2], c="tab:orange", label="I2 est.")
+#ax2.plot(t, np.array(SIR)[0::10, 2], c="b", label="R est.")
+ax.set_xlabel("Date")
+#ax.set_ylabel("Number of susce"ptible people ")
+ax2.set_ylabel("Number of dead people")
+ax.set_ylabel("Number of people in ICU")
 
+n = 5
+T = list(range(sim_days + 1))[0::n]
+threshold = 300*np.ones(len(T))
+
+# Data points
+ax.plot(T,threshold, "--", label = "I3 threshold")
+ax.scatter(T, data['I3'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="tab:orange", alpha=alpha, label="I3")
+ax2.scatter(T, data['R3'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="b", alpha=alpha, label="R3")
+#ax2.scatter(T, data['I2'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="tab:orange", alpha=alpha, label="I2")
+#ax2.scatter(T, data['R1'][t1:t2], c="b", alpha=alpha, label="R1")
+
+ax.tick_params(axis='x', rotation=45)
+ax.legend(loc="upper left")
+ax2.legend(loc="center right")
+tikzplotlib.save('test_expand_2.tex')
+plt.show()
 
 #%% Parameter over time: Expanded model
 # Specify period and overshoot

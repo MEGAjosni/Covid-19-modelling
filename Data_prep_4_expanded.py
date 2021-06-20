@@ -18,6 +18,7 @@ from tqdm import tqdm
 def Create_dataframe(
         Gamma1: float = 1/5,  # Fraction, rate of recovery from infection
         Gamma2: float = 1/7,  # Fraction, rate of recovery from hospitalization
+        Gamma3: float = 1/21,
         forecast: bool = False,
         early: bool  = True
 ) -> pd.core.frame.DataFrame:
