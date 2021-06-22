@@ -27,15 +27,16 @@ def estimate_params_expanded_PID(
         precision,
 ):
     best_beta_avg = -math.inf 
-    best_params=[0.00023400000000000005, -6.599999999999992e-05, -0.0015799999999999998]
+    best_params = [-0.0001, -0.0003, 0.1] 
+    #best_params=[0,0,0]
     T = np.zeros(len(data['R2'])*10)
     for i in range(len(data['R2'])):
         T[(i*10):(i*10)+10] = data['R2'][i]/10
     for k in tqdm(range(precision)):
     
-        Kp = np.linspace(best_params[0] - 0.0001 / (10 ** k),best_params[0] + 0.0001 / (10 ** k), 21)
-        Ki = np.linspace(best_params[1] - 0.0001/ (10 ** k), best_params[1] + 0.0001 / (10 ** k), 21)
-        Kd = np.linspace(best_params[2] - 0.001 / (10 ** k), best_params[2] + 0.001 / (10 ** k), 21)
+        Kp = np.linspace(best_params[0] - 0.0001 / (10 ** k),min(best_params[0] + 0.0001 / (10 ** k),0), 21)
+        Ki = np.linspace(best_params[1] - 0.0001/ (10 ** k),min(best_params[1] + 0.0001 / (10 ** k),0), 21)
+        Kd = np.linspace(best_params[2] - 0.01 / (10 ** k), max(best_params[2] + 0.01 / (10 ** k),0), 21)
     
         for comb in itertools.product(Kp,Ki,Kd):
             params = list(comb)
@@ -50,8 +51,8 @@ def estimate_params_expanded_PID(
                 method=e_ivp.RK4
                 
             )
-
-            if max(error_vals) < 0.01:
+            
+            if max(error_vals) - 150 < 0.001:
                 
                 if sum(beta_vals)/len(beta_vals) > best_beta_avg:
                     best_params = params
@@ -90,12 +91,12 @@ def estimate_params_expanded_PID(
 # Specify period, overshoot and non-estimating parameters                        
 
 start_day = '2020-12-01'  # start day
-simdays = 150
+simdays = 100
 overshoot = 0
 beta,phi1,phi2 = [0.13, 0.005, 0.02]
 gamma1 = 1/9
 gamma2 = 1/7
-gamma3 = 1/16
+gamma3 = 1/21
 theta = 0.166
 
 

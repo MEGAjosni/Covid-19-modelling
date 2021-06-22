@@ -9,7 +9,7 @@ Created on Tue Mar 30 11:12:16 2021
 
 import pandas as pd
 import numpy as np
-from get_data import *
+
 import matplotlib.pyplot as plt
 import os
 
@@ -25,15 +25,15 @@ import os
 # Read constant data from excel file.
 os.chdir(os.getcwd())
 
-location = 'data/Vaccine prognoser (jan-juli).xlsx'
+location = 'data/Vaccine_prognoser_early_january.xlsx'
 df = pd.read_excel(location, header=1)
 
 # Format relevant columns to np.arrays
-daily_phizer = np.array([df[df.columns[8]]]).transpose()
-daily_moderna = np.array([df[df.columns[9]]]).transpose()
-daily_astra = np.array([df[df.columns[10]]]).transpose()
+daily_phizer = np.array([df[df.columns[8]]]).transpose()/2
+daily_moderna = np.array([df[df.columns[9]]]).transpose()/2
+daily_astra = np.array([df[df.columns[10]]]).transpose()/2
 daily_johnson = np.array([df[df.columns[11]]]).transpose()
-daily_andre = np.array([df[df.columns[12]]]).transpose()
+daily_andre = np.array([df[df.columns[12]]]).transpose()/2
 
 # Adds offset to the effect of vaccine, corresponding tothe number of weeks from delivery to fully vaccinated plus one week for full effect of vaccine.
 # value for 'others' category is not known, so its set to 5.
@@ -59,10 +59,10 @@ andre_active = np.append(andre_active, np.zeros(max_points - len(andre_active)))
 Total_active = phizer_active + moderna_active + astra_active + johnson_active + andre_active
 
 # save Total_active to file for use in model.
-np.savetxt('vac_data_kalender_14_04_2021.csv',Total_active,delimiter = ',')
+np.savetxt('Early_vac_calendar_data.csv',Total_active,delimiter = ',')
 
 
-
+'''
 # import vaccination data from ssi using get_data.py
 vac_df = vaccine_dict['FaerdigVacc_daekning_DK_prdag']
 faerdig_vac_daglig = np.array([vac_df[vac_df.columns[1]]]).transpose()
@@ -108,3 +108,4 @@ plt.legend(["Planned", "Actual"])
 plt.xlabel("days since 04/01/2021")
 plt.ylabel("Active vaccinations")
 plt.tight_layout()
+'''

@@ -75,7 +75,7 @@ def RK4(
 
 
 def PID_cont(ICU_prev, beta_prev, e_total, e_prev, K):
-    I3_hat = 322
+    I3_hat = 322-150    
     e = ICU_prev-I3_hat
     #print(e)
     e_total = e_total + e
@@ -93,16 +93,16 @@ def PID_cont(ICU_prev, beta_prev, e_total, e_prev, K):
     
     new_beta = beta_prev + PID 
     
-    if new_beta < beta_prev * 0.5:
-        new_beta = beta_prev * 0.5
-    if new_beta > beta_prev * 2:
-        new_beta = beta_prev * 2
+    if new_beta < beta_prev * 0.8:
+        new_beta = beta_prev * 0.8
+    if new_beta > beta_prev * 1.2:
+        new_beta = beta_prev * 1.2
     
     if new_beta < 0.06:
         new_beta = 0.06
     if new_beta > 0.25:
         new_beta = 0.25
-    print("PID: ", PID, "Beta: ",new_beta, "Beta_prev: ",beta_prev)
+    #print("PID: ", PID, "Beta: ",new_beta, "Beta_prev: ",beta_prev)
     return new_beta, e, e_total,
 
 
