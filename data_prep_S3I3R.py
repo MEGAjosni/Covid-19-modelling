@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Jun  9 09:33:45 2021
-
-@author: alboa
-"""
 import scipy.io
 import os
 import get_data as gd
@@ -28,8 +22,6 @@ def Create_dataframe(
     #   Inputs :
     #       Gamma1 : fracton, rate of recovery from infection
     #       Gamma2 : fraction, rate of recovery from hospitalization
-    #       t0: date, Start of simulation
-    #       sim_days : int, number of days of simulation
     #       forecast : boolean,
     #   Output :
     #       X : dataframe, Containing [S,I1,I2,I3,R1,R2,R3], indexed by date.

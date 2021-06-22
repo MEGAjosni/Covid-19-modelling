@@ -1,12 +1,5 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 15 13:31:45 2021
-
-@author: alboa
-"""
 import math
 import numpy as np
-
 
 
 def derivative_expanded(X, mp, t):
@@ -113,7 +106,6 @@ def PID_cont(ICU_prev, beta_prev, e_total, e_prev, K):
     return new_beta, e, e_total,
 
 
-
 def simulateSIR(
         X_0: np.array,  # Initial values of SIR [S_0, I_0, R_0]
         mp: list,  # Model parameters [beta, gamma, N]
@@ -157,7 +149,7 @@ def simulateSIR_PID(
     error_vals = [0]
     beta_vals = [beta_initial]
     
-    for i in range(0,int(simtime / stepsize)):
+    for i in range(0, int(simtime / stepsize)):
         new_beta = 0
         
         if i % 70 == 0: # only update beta every 7 days (10*i = one day)

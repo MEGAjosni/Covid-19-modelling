@@ -142,7 +142,7 @@ plt.show()
 """
 
 #%% Varying parameters: Expanded model
-import Data_prep_4_expanded as dp4e
+import data_prep_S3I3R as dp
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
 import expanded_ivp_funcs as e_ivp
@@ -165,7 +165,7 @@ overshoot = dt.timedelta(days=overshoot)
 mp = [1/9, 1/7, 1/16]
 
 # Load data
-data = dp4e.Create_dataframe(
+data = dp.Create_dataframe(
     Gamma1=mp[0],
     Gamma2=mp[1],
     forecast=False
@@ -184,7 +184,7 @@ T = data["R2"][t0:t0 + dt.timedelta(days=simdays)]
 t, SIR = e_ivp.simulateSIR(
     X_0=data.loc[t0],
     mp=[0.185, 1/9, 1/7, 1/16, 1/5, 0.0055, 0.03],
-    T = T,
+    T=T,
     simtime=simdays,
     method=e_ivp.RK4
 )
