@@ -46,9 +46,9 @@ def Create_dataframe(
     # *** This has wierd data ***
     if forecast:
         if early:
-            Activated_vaccines = pd.read_csv('vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
+            Activated_vaccines = pd.read_csv('data/vac_data_kalender_14_04_2021.csv', engine='python')  # 1st observation jan 4th 2021
         else:
-            Activated_vaccines = pd.read_csv('Early_vac_calendar_data.csv', engine='python')  # 1st observation jan 4th 2021
+            Activated_vaccines = pd.read_csv('data/Early_vac_calendar_data.csv', engine='python')  # 1st observation jan 4th 2021
 
 
     infect_keys = list(gd.infect_dict.keys())

@@ -1,4 +1,3 @@
-"""
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
 import matplotlib.pyplot as plt
@@ -9,6 +8,16 @@ import tikzplotlib
 import numpy as np
 from SIR_basic_data import X
 
+### MAIN SCRIPT - GROUP 8.3 ###################
+#   Authors: Marcus, Albert, Jonas
+#   Date: 23/06 - 2021
+#   
+#   The purpose of this script is to produce
+#   plots created for the report
+###############################################
+
+
+#Parameter estimation: simple SIR
 gamma = 1 / 9  # predifed gamma
 
 # start of simulation
@@ -42,8 +51,9 @@ t, SIR = b_ivp.simulateSIR(
 )
 
 c2 = time.process_time()
-
 print("Simulation completed in", c2 - c1, "seconds.")
+
+#Create plots
 t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
 alpha = 0.5
 # Plot optimal solution
@@ -139,9 +149,10 @@ ax.set_ylabel("Number of people")
 ax2.set_ylabel("Beta")
 ax2.legend("Infected")
 plt.show()
-"""
+
+
 #%% Expanded model: constant parameters
-import Data_prep_4_expanded as dp4e
+import data_prep_S3I3R as dp4e
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
 import expanded_ivp_funcs as e_ivp
@@ -178,11 +189,10 @@ opt_params = pest.estimate_params_expanded_LA(
     mp=gammas
 )
 
+# include predefined gammas and optimal parameters
 mp = np.array([opt_params[0],gammas[0],gammas[1],gammas[2],opt_params[3],opt_params[1],opt_params[2]])
 
-#mp = [0.185,1/9,1/7,1/16,1/5,0.0055,0.03]
 T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
-# Remove vaccinations
 
 
 #Normal simulation
@@ -206,14 +216,15 @@ t, SIR2 = e_ivp.simulateSIR(
 )
 
 
-# Load data
+# Load Forecast data
 data = dp4e.Create_dataframe(
     Gamma1=gammas[0],
     Gamma2=gammas[1],
     Gamma3 = gammas[2],
     forecast=True,
-    early = False
+    early = True,
 )
+
 
 T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
 
@@ -226,7 +237,7 @@ t, SIR3 = e_ivp.simulateSIR(
     method=e_ivp.RK4
 )
 
-
+#Create plot
 t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
 alpha = 0.5
 # Plot optimal solution
@@ -263,24 +274,21 @@ ax2.legend(loc="center right")
 tikzplotlib.save('test_expand_2.tex')
 plt.show()
 
-#%% Parameter over time: Expanded model
+#%% Parameters over time: Expanded model
 # Specify period and overshoot
 start_day = '2020-12-01'  # start day
 sim_days = 119
 overshoot = dt.timedelta(days=7)
-
 t1 = pd.to_datetime(start_day)
+
+#load data
 data = dp4e.Create_dataframe(
     Gamma1=mp[0],
     Gamma2=mp[1],
     forecast=False,
 )
 
-dR3 = np.array(data["R3"][t1:t1+dt.timedelta(days=sim_days)])-np.array(data["R3"][t1+dt.timedelta(days=-1):t1+dt.timedelta(days=sim_days-1)])
-I3 = np.array(data["I3"][t1:t1+dt.timedelta(days=sim_days)])
-
-thetas = dR3/I3
-
+#compute optimal parameters overtime
 opt_params = pest.params_over_time_expanded_LA(
     t1=t1,
     t2=t1 + dt.timedelta(days=sim_days),
@@ -290,6 +298,7 @@ opt_params = pest.params_over_time_expanded_LA(
 )
 
 
+#Create plot
 fig, ax = plt.subplots()
 ax2 = ax.twinx()
 new_opt = np.delete(opt_params, (1), axis=0)
