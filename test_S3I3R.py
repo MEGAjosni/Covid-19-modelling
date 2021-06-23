@@ -1,9 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Apr 15 15:22:09 2021
-
-@author: Marcus
-"""
 import matplotlib.pyplot as plt
 import expanded_ivp_funcs as e_ivp
 import numpy as np

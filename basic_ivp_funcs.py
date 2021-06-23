@@ -27,57 +27,6 @@ def derivative(
     return np.array(dX)
 
 
-"""
-def simulateSV(
-<<<<<<< Updated upstream:basic_ivp_funcs.py
-        V_0: int,  # Initial values of V_0
-=======
-        V_start: float,  # Initial values in simulation of V
->>>>>>> Stashed changes: inivalfunctions.py
-        mp: list,  # Model parameters [beta, gamma, N]
-        simtime: int = 100,  # How many timeunits into the future that should be simulated
-        stepsize: float = 0.1,  # t_kp1 - t_k
-        method=RK4V  # Numerical method to be used [function]
-            ):
-<<<<<<< Updated upstream:basic_ivp_funcs.py
-    SV = [V_0]
-    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
-    for i in range(int(simtime / stepsize)):
-        SV.append(method(SV[i], mp=mp, stepsize=stepsize))
-
-    return t, SV
-
-=======
-    V = [V_start]
-    t = [i * stepsize for i in range(int(simtime / stepsize) + 1)]
-    for i in range(int(simtime / stepsize)):
-        V.append(method(1, V[i], mp, stepsize))
-
-    return t, V
-    
->>>>>>> Stashed changes:inivalfunctions.py
-"""
-
-
-def ExplicitEuler(
-        X_k: np.array,  # Values of SIR at time t_k
-        mp: list,  # Model parameters [beta, gamma]
-        T: np.array,
-        stepsize=0.1  # t_kp1 - t_k
-):
-    # *** Description ***
-    # Uses Explicit Euler to solve ODE system numerically.
-
-    # *** Output ***
-    # X_kp1 [list]:         Values of SIR at time t_kp1
-
-    dX_k = derivative(X_k, mp)
-
-    X_kp1 = X_k + stepsize * dX_k
-
-    return X_kp1
-
-
 def RK4(
         X_k: np.array,  # Values of SIR at time t_k
         mp: list,  # Model parameters [beta, gamma]
