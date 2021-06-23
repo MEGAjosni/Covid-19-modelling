@@ -13,7 +13,9 @@ from SIR_basic_data import X
 #   Date: 23/06 - 2021
 #   
 #   The purpose of this script is to produce
-#   plots created for the report
+#   plots created for the report. Notice that
+#   scripts for PID plots are not included here,
+#   but found in PID_manual_tuning.py
 ###############################################
 
 
@@ -81,7 +83,7 @@ ax2.legend(loc="center right")
 tikzplotlib.save('test.tex')
 plt.show()
 
-# %% Variying beta
+# %% basic SIR: Variying beta
 from SIR_basic_data import X
 
 # start of simulation
@@ -151,7 +153,97 @@ ax2.legend("Infected")
 plt.show()
 
 
-#%% Expanded model: constant parameters
+
+#%% Expanded model: parameter estimation
+import data_prep_S3I3R as dp4e
+import basic_ivp_funcs as b_ivp
+import paramest_funcs as pest
+import expanded_ivp_funcs as e_ivp
+import matplotlib.pyplot as plt
+import time
+import datetime as dt
+import pandas as pd
+import tikzplotlib
+import numpy as np
+
+
+# Specify period and overshoot
+start_day = '2020-12-01'  # start day
+sim_days = 14
+
+t1 = pd.to_datetime(start_day)
+
+gammas = [1/9, 1/7, 1/21] #gamma1 gamma2 gamma3
+
+# Load data
+data = dp4e.Create_dataframe(
+    Gamma1=gammas[0],
+    Gamma2=gammas[1],
+    Gamma3 = gammas[2],
+    forecast=False,
+)
+
+# find optimal parameters
+opt_params = pest.estimate_params_expanded_LA(
+    X_0 = data.loc[t1],
+    t1=t1,
+    t2=t1 + dt.timedelta(days=14),
+    data=data,
+    mp=gammas
+)
+
+# include predefined gammas and optimal parameters
+mp = np.array([opt_params[0],gammas[0],gammas[1],gammas[2],opt_params[3],opt_params[1],opt_params[2]])
+
+T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
+
+
+#Normal simulation
+t, SIR = e_ivp.simulateSIR(
+    X_0=data.loc[t1],
+    mp=mp,
+    T = T,
+    simtime=sim_days,
+    method=e_ivp.RK4
+)
+
+
+
+#Create plot
+t = pd.date_range(t1, periods=sim_days + 1).strftime('%d/%m-%Y')
+alpha = 0.5
+# Plot optimal solution
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+# plot simulations
+ax.plot(t, np.array(SIR)[0::10, 3], c="orange", label="I3 est")
+ax2.plot(t, np.array(SIR)[0::10, 6], c="tab:blue", label="R3 est")
+ax2.plot(t, np.array(SIR)[0::10, 2], c="tab:orange", label="I2 est.")
+#ax2.plot(t, np.array(SIR)[0::10, 2], c="b", label="R est.")
+ax.set_xlabel("Date")
+#ax.set_ylabel("Number of susce"ptible people ")
+ax2.set_ylabel("Number of dead people")
+ax.set_ylabel("Number of people in ICU")
+
+n = 5
+T = list(range(sim_days + 1))[0::n]
+threshold = 300*np.ones(len(T))
+
+# Data points
+ax.plot(T,threshold, "--", label = "I3 threshold")
+ax.scatter(T, data['I3'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="tab:orange", alpha=alpha, label="I3")
+ax2.scatter(T, data['R3'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="b", alpha=alpha, label="R3")
+ax2.scatter(T, data['I2'][t1:t1 + dt.timedelta(days=sim_days)][0::n], c="tab:orange", alpha=alpha, label="I2")
+#ax2.scatter(T, data['R1'][t1:t2], c="b", alpha=alpha, label="R1")
+
+ax.tick_params(axis='x', rotation=45)
+ax.legend(loc="upper left")
+ax2.legend(loc="center right")
+tikzplotlib.save('test_expand_2.tex')
+plt.show()
+
+
+#%% Expanded model: simulation of lockdown with december parameters
 import data_prep_S3I3R as dp4e
 import basic_ivp_funcs as b_ivp
 import paramest_funcs as pest
