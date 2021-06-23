@@ -212,6 +212,7 @@ data = dp4e.Create_dataframe(
     Gamma2=gammas[1],
     Gamma3 = gammas[2],
     forecast=True,
+    early = False
 )
 
 T = data["R2"][t1:t1 + dt.timedelta(days=sim_days)]
@@ -233,8 +234,8 @@ fig, ax = plt.subplots()
 ax2 = ax.twinx()
 # plot simulations
 ax.plot(t, np.array(SIR)[0::10, 3], c="orange", label="I3 est. +")
-ax.plot(t, np.array(SIR2)[0::10, 3], c="tab:orange", label="I3 est. F", alpha = alpha)
-ax.plot(t, np.array(SIR3)[0::10, 3], c="tab:orange", label="I3 est. -", alpha = alpha)
+ax.plot(t, np.array(SIR2)[0::10, 3], c="black", label="I3 est. F", alpha = alpha)
+ax.plot(t, np.array(SIR3)[0::10, 3], c="black", label="I3 est. -", alpha = alpha)
 ax2.plot(t, np.array(SIR)[0::10, 6], c="tab:blue", label="R3 est. +")
 ax2.plot(t, np.array(SIR2)[0::10, 6], c="b", label="R3 est.F", alpha = alpha)
 ax2.plot(t, np.array(SIR3)[0::10, 6], c="b", label="R3 est.-", alpha = alpha)
@@ -275,6 +276,10 @@ data = dp4e.Create_dataframe(
     forecast=False,
 )
 
+dR3 = np.array(data["R3"][t1:t1+dt.timedelta(days=sim_days)])-np.array(data["R3"][t1+dt.timedelta(days=-1):t1+dt.timedelta(days=sim_days-1)])
+I3 = np.array(data["I3"][t1:t1+dt.timedelta(days=sim_days)])
+
+thetas = dR3/I3
 
 opt_params = pest.params_over_time_expanded_LA(
     t1=t1,
@@ -284,5 +289,15 @@ opt_params = pest.params_over_time_expanded_LA(
     mp=mp
 )
 
-plt.plot(opt_params.transpose())
+
+fig, ax = plt.subplots()
+ax2 = ax.twinx()
+new_opt = np.delete(opt_params, (1), axis=0)
+ax.plot(new_opt.transpose())
+#plt.plot(thetas)
+ax.legend([r"$\beta$", r"$\phi_2$", r"$\theta$"], loc="center left")
+
+ax2.plot(opt_params[1,:].transpose(), c = "gold")
+ax2.legend([r"$\phi_1$"])
+tikzplotlib.save('test_expand_3.tex')
 plt.show()
