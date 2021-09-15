@@ -133,6 +133,7 @@ for i in range(len(betas_calc)):
         betas_calc_ls.append((np.dot(A.transpose(),A))**(-1)*np.dot(A.transpose(),b))
 
 
+
 T = list(range(sim_days + 1))
 # Plot optimal solution
 fig, ax = plt.subplots()
@@ -142,8 +143,8 @@ T2 = list(range(sim_days -3))
 ax.plot(T2, np.array(betas_calc_avg).transpose(), c = "g")
 ax.plot(T2, np.array(betas_calc_ls).transpose(), c = "r")
 
-ax2.plot(T, np.asarray(X["I"][t1:t2]), c = "tab:orange")
-
+ax2.scatter(T, np.asarray(X["I"][t1:t2]), c = "tab:orange")
+#ax2.plot(t, np.array(SIR)[:, 1], c="r", label="I est.")
 plt.title("Simulation varying beta")
 ax.legend(["Beta"])
 ax.set_xlabel("time")

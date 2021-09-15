@@ -52,9 +52,10 @@ def RK4(
 def simulateSIR(
         X_0: np.array,  # Initial values of SIR [S_0, I_0, R_0]
         mp: list,  # Model parameters [beta, gamma]
+        betas = None, #Array where each entry is the beta value of the corresponding day
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
-        method=RK4  # Numerical method to be used [function]
+        method=RK4,  # Numerical method to be used [function]
 ):
     # *** Description ***
     # Simulate SIR-model.
@@ -71,6 +72,8 @@ def simulateSIR(
     t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
 
     for k in range(n_steps):
-        SIR[:, k+1] = method(SIR[:, k], mp, 0, stepsize)
-
+        if betas is None:
+            SIR[:, k+1] = method(SIR[:, k], mp, 0, stepsize)
+        else:
+            SIR[:, k+1] = method(SIR[:, k], [betas[int(np.floor(k*stepsize))],mp[1]], 0, stepsize)
     return t, SIR.transpose()

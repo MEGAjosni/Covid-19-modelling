@@ -51,6 +51,41 @@ def estimate_beta_simple(
 
     return round(best_beta, precision)
 
+def estimate_beta_simple_LA(
+        X_0,
+        t1,  # Start
+        t2,  # Stop
+        data,
+        gamma=1 / 9,
+        precision=3
+):
+    N = 5800000
+    simdays = (t2 - t1).days + 1
+
+    dX = data[['S','I']][t1:t2].to_numpy() - data[['S','I']][t1-dt.timedelta(days=1): t2-dt.timedelta(days=1)].to_numpy()
+    dX_norms = np.linalg.norm(dX,axis=0)
+    
+    
+    for k in range(simdays):
+        dxt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)])-np.array(data.loc[t1+dt.timedelta(days=k-1):t1+dt.timedelta(days=k-1)]))[0]
+        xt = (np.array(data.loc[t1+dt.timedelta(days=k):t1+dt.timedelta(days=k)]))[0]
+        
+        A = np.array(
+            #[xt[0]*xt[1]/N])/dX_norms
+            [-xt[0]*xt[1]/N,xt[0]*xt[1]/N])/dX_norms
+        b = np.array(
+            #[dxt[1]+gamma*xt[1]])/dX_norms
+            [dxt[0], dxt[1]+gamma*xt[1]])/dX_norms
+        if k == 0:
+            As = A
+            bs = b
+        else:
+            As = np.concatenate([As,A],axis = 0)
+            bs = np.concatenate([bs,b])
+            
+    beta = (np.dot(As,As)**(-1))*np.dot(As,bs)
+    return beta
+
 
 def beta_over_time_simple(
         t1: dt.date,
@@ -65,6 +100,29 @@ def beta_over_time_simple(
 
     for k in tqdm(range(simdays)):
         betas[k] = estimate_beta_simple(
+            X_0=data.loc[t1 - overshoot + dt.timedelta(days=k)].to_numpy(copy=True),
+            t1=t1 + dt.timedelta(days=k) - overshoot,
+            t2=t2 + dt.timedelta(days=k) + overshoot,
+            data=data,
+            gamma=gamma,
+            precision=3
+        )
+
+    return betas
+
+def beta_over_time_simple_LA(
+        t1: dt.date,
+        t2: dt.date,
+        overshoot: dt.timedelta,
+        data: pd.core.frame.DataFrame,
+        gamma: float = 1/9
+):
+
+    simdays = (t2 - t1).days + 1
+    betas = np.zeros(simdays)
+
+    for k in tqdm(range(simdays)):
+        betas[k] = estimate_beta_simple_LA(
             X_0=data.loc[t1 - overshoot + dt.timedelta(days=k)].to_numpy(copy=True),
             t1=t1 + dt.timedelta(days=k) - overshoot,
             t2=t2 + dt.timedelta(days=k) + overshoot,
