@@ -15,7 +15,7 @@ def derivative(
     # dX [list]:            Derivative of X
 
     beta, gamma = mp
-    N = 5800000
+    N = sum(X)
     S, I, R = X
 
     dX = [
@@ -55,6 +55,8 @@ def simulateSIR(
         betas = None, #Array where each entry is the beta value of the corresponding day
         simtime: int = 100,  # How many timeunits into the future that should be simulated
         stepsize: float = 0.1,  # t_kp1 - t_k
+        noise_var = 0, #noise type 1. Added to beta
+        noise_var2 = 0, #noise type 2. Added to compartments
         method=RK4,  # Numerical method to be used [function]
 ):
     # *** Description ***
@@ -70,10 +72,15 @@ def simulateSIR(
     SIR[:, 0] = X_0
 
     t = np.arange(start=0, stop=simtime+stepsize/2, step=stepsize)
-
+    gen_noise = np.random.normal(0,noise_var,n_steps)
     for k in range(n_steps):
         if betas is None:
-            SIR[:, k+1] = method(SIR[:, k], mp, 0, stepsize)
+            SIR[:, k+1] = method(SIR[:, k], [max([mp[0]+gen_noise[k],0]),mp[1]], 0, stepsize)
+            d1 = np.random.normal(0,noise_var2*SIR[0,k+1])
+            d2 = np.random.normal(0,noise_var2*SIR[1,k+1])
+            SIR[:, k+1] += [d1, d2, -d1-d2]
+            print(mp[0]+gen_noise[k])
+            
         else:
             SIR[:, k+1] = method(SIR[:, k], [betas[int(np.floor(k*stepsize))],mp[1]], 0, stepsize)
     return t, SIR.transpose()

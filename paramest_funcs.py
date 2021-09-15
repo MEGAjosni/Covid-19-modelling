@@ -59,7 +59,7 @@ def estimate_beta_simple_LA(
         gamma=1 / 9,
         precision=3
 ):
-    N = 5800000
+    N  =sum(X_0)
     simdays = (t2 - t1).days + 1
 
     dX = data[['S','I']][t1:t2].to_numpy() - data[['S','I']][t1-dt.timedelta(days=1): t2-dt.timedelta(days=1)].to_numpy()
@@ -142,7 +142,7 @@ def estimate_params_expanded_LA(
         mp: list,  # Known model parameters [gamma1, gamma2, gamma3]
         precision: int = 5
 ):
-    N = 5800000
+    N = sum(X_0)
     simdays = (t2 - t1).days + 1
 
     dX = data[['S', 'I1', 'I2', 'I3', 'R3']][t1:t2].to_numpy() - data[['S', 'I1', 'I2', 'I3', 'R3']][t1-dt.timedelta(days=1): t2-dt.timedelta(days=1)].to_numpy()
