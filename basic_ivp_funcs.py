@@ -79,7 +79,6 @@ def simulateSIR(
             d1 = np.random.normal(0,noise_var2*SIR[0,k+1])
             d2 = np.random.normal(0,noise_var2*SIR[1,k+1])
             SIR[:, k+1] += [d1, d2, -d1-d2]
-            print(mp[0]+gen_noise[k])
             
         else:
             SIR[:, k+1] = method(SIR[:, k], [betas[int(np.floor(k*stepsize))],mp[1]], 0, stepsize)

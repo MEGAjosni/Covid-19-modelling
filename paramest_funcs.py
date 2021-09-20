@@ -62,7 +62,7 @@ def estimate_beta_simple_LA(
     N  =sum(X_0)
     simdays = (t2 - t1).days + 1
 
-    dX = data[['S','I']][t1:t2].to_numpy() - data[['S','I']][t1-dt.timedelta(days=1): t2-dt.timedelta(days=1)].to_numpy()
+    dX = data[['S','I']][t1+dt.timedelta(days=1):t2].to_numpy() - data[['S','I']][t1: t2+dt.timedelta(days=-1)].to_numpy()
     dX_norms = np.linalg.norm(dX,axis=0)
     
     
@@ -114,18 +114,18 @@ def beta_over_time_simple_LA(
         t1: dt.date,
         t2: dt.date,
         overshoot: dt.timedelta,
-        data: pd.core.frame.DataFrame,
+        data,# pd.core.frame.DataFrame,
         gamma: float = 1/9
 ):
 
     simdays = (t2 - t1).days + 1
     betas = np.zeros(simdays)
 
-    for k in tqdm(range(simdays)):
+    for k in tqdm(range(simdays)): 
         betas[k] = estimate_beta_simple_LA(
             X_0=data.loc[t1 - overshoot + dt.timedelta(days=k)].to_numpy(copy=True),
             t1=t1 + dt.timedelta(days=k) - overshoot,
-            t2=t2 + dt.timedelta(days=k) + overshoot,
+            t2=t1 + dt.timedelta(days=k),
             data=data,
             gamma=gamma,
             precision=3
