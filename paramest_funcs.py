@@ -56,7 +56,7 @@ def estimate_beta_simple_LA(
         t1,  # Start
         t2,  # Stop
         data,
-        gamma=1 / 9,
+        gamma = None,
         precision=3
 ):
     N  =sum(X_0)
@@ -82,9 +82,12 @@ def estimate_beta_simple_LA(
         else:
             As = np.concatenate([As,A],axis = 0)
             bs = np.concatenate([bs,b])
-            
-    beta = (np.dot(As,As)**(-1))*np.dot(As,bs)
-    return beta
+    
+    if gamma is not None:
+        params = (np.dot(As,As)**(-1))*np.dot(As,bs)
+    else:
+        params = np.linalg.lstsq(As, bs, rcond=None)[0]
+    return params
 
 
 def beta_over_time_simple(
